@@ -20,7 +20,7 @@ public class Lexer {
     }
 
     public void skipWhiteSpace() {
-        while (code.current() == ' ' || code.current() == '\n') {
+        while (code.current() == ' ' || code.current() == '\n' || this.code.current() == '\r' || this.code.current() == '\t') {
             code.next();
         }
     }
