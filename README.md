@@ -39,3 +39,6 @@
 - `switch` → mudar
 - `case` → caso
 - `default` → padrao
+
+
+Pensei em adiconar algo do tipo **"exodus"** e **"gen"** como nome para duas das palavras acima
