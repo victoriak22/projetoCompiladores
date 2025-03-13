@@ -18,6 +18,6 @@ return tipo;
 
 @Override
 public String toString(){
-return "< " + tipo + "," + lexema + " >";
+return "< " + tipo + ", " + lexema + " >";
 }
 }

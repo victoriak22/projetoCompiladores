@@ -13,6 +13,7 @@ public class Lexer {
         tokens = new ArrayList<>();
         afds = new ArrayList<>();
         this.code = new StringCharacterIterator(code);
+        afds.add(new ReservedWords());
         afds.add(new MathOperator());
         afds.add(new Number());
         afds.add(new RelationalOperator());
@@ -20,7 +21,7 @@ public class Lexer {
     }
 
     public void skipWhiteSpace() {
-        while (code.current() == ' ' || code.current() == '\n' || this.code.current() == '\r' || this.code.current() == '\t') {
+        while (code.current() == ' ' || code.current() == '\n') {
             code.next();
         }
     }
