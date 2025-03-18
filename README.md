@@ -66,10 +66,6 @@ Essas três etapas — **lexical**, **sintática** e **semântica** — garantem
 
 ---
 
-Esses processos garantem que o código-fonte em **PSALMS** seja não apenas convertido para o português, mas também validado em termos de sua estrutura e significado, resultando em um compilador robusto e confiável.
-
----
-
 ### 💡 **Exemplos de Código**
 
 #### **Exemplo de código com `se` e `senao` (substituindo `if` e `else`):**
