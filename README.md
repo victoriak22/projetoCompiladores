@@ -13,32 +13,32 @@
 - `if` → se
 - `else` → senao
 - `else if` → senaose
-- `for` → para
+- `for` → loop
 - `while` → enquanto
 - `break` → parar
 - `continue` → continuar
 - `return` → amen
 - `try` → tente
+- `function` → deus
 - `catch` → capturar
 - `class` → alma
-- `public` → aberto
-- `private` → oculto
+- `public` → publico
+- `private` → privado
 - `void` → vazio
 - `int` → inteiro
 - `float` → flutuante
 - `char` → caractere
-- `string` → cadeia
-- `true` → verdadeiro
-- `false` → falso
+- `string` → texto
+- `true` → luz
+- `false` → trevas
 - `null` → nulo
-- `new` → manifestar
+- `new` → gen
 - `this` → este
 - `super` → superior
 - `instanceof` → como
-- `break` → interromper
-- `switch` → mudar
+- `switch` → escolha
 - `case` → caso
 - `default` → padrao
 
 
-Pensei em adiconar algo do tipo **"exodus"** e **"gen"** como nome para duas das palavras acima
+Pensei em adiconar algo do tipo **"exodus"** como nome para duas das palavras acima
