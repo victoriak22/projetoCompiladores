@@ -6,40 +6,40 @@ A linguagem **PSALMS** foi projetada com uma forte influência de palavras que f
 
 ---
 
-### 💡 **Transformações de Palavras Reservadas**
+### 💡 **Transformações de Palavras Reservadas (Java para PSMALS)**
 
-Aqui estão as transformações de palavras reservadas da linguagem **PSALMS**:
+Aqui estão as transformações de palavras reservadas da linguagem **Java** para **PSMALS**:
 
-| **Palavra em Inglês** | **Palavra em PSALMS (Português)** |
-|-----------------------|------------------------------------|
-| `if`                  | `se`                               |
-| `else`                | `senao`                            |
-| `else if`             | `senaose`                          |
-| `for`                 | `para`                             |
-| `while`               | `enquanto`                         |
-| `break`               | `parar`                            |
-| `continue`            | `continuar`                        |
-| `return`              | `amen`                             |
-| `try`                 | `tente`                            |
-| `catch`               | `capturar`                         |
-| `class`               | `alma`                             |
-| `public`              | `aberto`                           |
-| `private`             | `oculto`                           |
-| `void`                | `vazio`                            |
-| `int`                 | `inteiro`                          |
-| `float`               | `flutuante`                        |
-| `char`                | `caractere`                        |
-| `string`              | `cadeia`                           |
-| `true`                | `verdadeiro`                       |
-| `false`               | `falso`                            |
-| `null`                | `nulo`                             |
-| `new`                 | `manifestar`                       |
-| `this`                | `este`                             |
-| `super`               | `superior`                         |
-| `instanceof`          | `como`                             |
-| `switch`              | `mudar`                            |
-| `case`                | `caso`                             |
-| `default`             | `padrao`                           |
+| **Palavra em Java**    | **Palavra em PSMALS (Português)** |
+|------------------------|------------------------------------|
+| `if`                   | `se`                               |
+| `else`                 | `senao`                            |
+| `else if`              | `senaose`                          |
+| `for`                  | `loop`                             |
+| `while`                | `enquanto`                         |
+| `break`                | `parar`                            |
+| `continue`             | `continuar`                        |
+| `return`               | `amen`                             |
+| `try`                  | `tente`                            |
+| `catch`                | `capturar`                         |
+| `class`                | `alma`                             |
+| `public`               | `publico`                          |
+| `private`              | `privado`                          |
+| `void`                 | `vazio`                            |
+| `int`                  | `inteiro`                          |
+| `float`                | `flutuante`                        |
+| `char`                 | `caractere`                        |
+| `String`               | `cadeia`                           |
+| `true`                 | `luz`                              |
+| `false`                | `trevas`                           |
+| `null`                 | `nulo`                             |
+| `new`                  | `gen`                              |
+| `this`                 | `este`                             |
+| `super`                | `superior`                         |
+| `instanceof`           | `como`                             |
+| `switch`               | `escolha`                          |
+| `case`                 | `caso`                             |
+| `default`              | `padrao`                           |
 
 ---
 
