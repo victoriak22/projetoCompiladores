@@ -40,6 +40,7 @@ Aqui estão as transformações de palavras reservadas da linguagem **Java** par
 | `switch`               | `escolha`                          |
 | `case`                 | `caso`                             |
 | `default`              | `padrao`                           |
+| `function`             | `deus`                             |
 
 ---
 

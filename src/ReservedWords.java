@@ -18,7 +18,7 @@ public class ReservedWords extends AFD {
             case "senaose":
                 return new Token("PALAVRA_RESERVADA", "senaose");
             case "para":
-                return new Token("PALAVRA_RESERVADA", "para");
+                return new Token("PALAVRA_RESERVADA", "loop");
             case "enquanto":
                 return new Token("PALAVRA_RESERVADA", "enquanto");
             case "parar":
@@ -34,9 +34,9 @@ public class ReservedWords extends AFD {
             case "alma":
                 return new Token("PALAVRA_RESERVADA", "alma");
             case "aberto":
-                return new Token("PALAVRA_RESERVADA", "aberto");
+                return new Token("PALAVRA_RESERVADA", "publico");
             case "oculto":
-                return new Token("PALAVRA_RESERVADA", "oculto");
+                return new Token("PALAVRA_RESERVADA", "privado");
             case "vazio":
                 return new Token("PALAVRA_RESERVADA", "vazio");
             case "inteiro":
@@ -46,11 +46,11 @@ public class ReservedWords extends AFD {
             case "caractere":
                 return new Token("PALAVRA_RESERVADA", "caractere");
             case "cadeia":
-                return new Token("PALAVRA_RESERVADA", "cadeia");
+                return new Token("PALAVRA_RESERVADA", "texto");
             case "verdadeiro":
-                return new Token("PALAVRA_RESERVADA", "verdadeiro");
+                return new Token("PALAVRA_RESERVADA", "luz");
             case "falso":
-                return new Token("PALAVRA_RESERVADA", "falso");
+                return new Token("PALAVRA_RESERVADA", "trevas");
             case "nulo":
                 return new Token("PALAVRA_RESERVADA", "nulo");
             case "manifestar":
@@ -64,11 +64,13 @@ public class ReservedWords extends AFD {
             case "interromper":
                 return new Token("PALAVRA_RESERVADA", "interromper");
             case "mudar":
-                return new Token("PALAVRA_RESERVADA", "mudar");
+                return new Token("PALAVRA_RESERVADA", "escolha");
             case "caso":
                 return new Token("PALAVRA_RESERVADA", "caso");
             case "padrao":
                 return new Token("PALAVRA_RESERVADA", "padrao");
+            case "deus":
+                return new Token("PALAVRA_RESERVADA", "deus");
             default:
                 return null;
         }
