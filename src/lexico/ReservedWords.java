@@ -53,6 +53,10 @@ public class ReservedWords extends AFD {
                 return new Token("NULL", "nulo");
             case "manifestar":
                 return new Token("MANIFEST", "manifestar");
+            case "gen":
+                return new Token("NEW", "gen");
+            case "como":
+                return new Token("INSTANCEOF", "como");
             case "este":
                 return new Token("THIS", "este");
             case "superior":
