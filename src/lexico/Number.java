@@ -28,9 +28,4 @@ public class Number extends AFD {
         }
         return number.toString();
     }
-
-    // private boolean endNumber(CharacterIterator code) {
-    // return code.current() == ' ' || code.current() == '+' || code.current() ==
-    // '\n' || code.current() == CharacterIterator.DONE;
-    // }
 }

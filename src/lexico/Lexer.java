@@ -18,6 +18,9 @@ public class Lexer {
         afds.add(new Number());
         afds.add(new RelationalOperator());
         afds.add(new Identifier());
+        afds.add(new Limiters());
+        afds.add(new Delimiters());
+        afds.add(new StringIdentifier());
     }
 
     public void skipWhiteSpace() {
