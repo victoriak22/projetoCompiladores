@@ -83,15 +83,15 @@ COMANDO            -> VAR_DECL
                    | CONDICAO
                    | REPETIR
                    | FUNCAO
-                   | CLASSE
+                   | CLASSE  -- Adicionando CLASSE
 
 -- Tipos e Identificadores
-VAR_ID             -> [a-zA-Z][a-zA-Z0-9_]*
+VAR_ID             -> [a-zA-Z][a-zA-Z0-9_]* 
 NUMERO             -> [0-9]+ | [0-9]+\.[0-9]+
 TIPO_VAR           -> "int" | "flut" | "char" | "texto"
 
 VALOR              -> VAR_ID | NUMERO
-EXPRESSAO          -> EXPR_ARIT | VALOR
+EXPRESSAO          -> EXPR_ARIT | EXPR_LOGICA | VALOR
 
 -- Declaração e Atribuição
 VAR_DECL           -> TIPO_VAR VAR_ID "=" EXPRESSAO ";"
@@ -112,6 +112,13 @@ REPETIR            -> "enquanto" "(" EXPRESSAO ")" BLOCO
 FUNCAO             -> "func" VAR_ID "(" PARAMS ")" BLOCO
 PARAMS             -> TIPO_VAR VAR_ID | TIPO_VAR VAR_ID "," PARAMS | ε
 
+-- Definição de Classe
+CLASSE             -> "alma" VAR_ID BLOCO   -- Adicionando CLASSE
+
 -- Bloco de Código
 BLOCO              -> "{" INICIO "}"
+
+-- Expressões Lógicas
+EXPR_LOGICA        -> EXPR_ARIT OPER_LOG EXPR_ARIT
+OPER_LOG           -> "e" | "ou"
 ```
