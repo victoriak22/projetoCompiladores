@@ -71,7 +71,7 @@ deus principal() {
 
 ---
 
-## 📜 Gramática da Linguagem PSALMS (BNF)
+## 📜 Gramática da Linguagem PSALMS
 
 ```bnf
 PROGRAMA           -> INICIO
