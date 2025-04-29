@@ -74,79 +74,44 @@ deus principal() {
 ## 📜 Gramática da Linguagem PSALMS (BNF)
 
 ```bnf
-PROGRAMA           -> BLOCO
+PROGRAMA           -> INICIO
 
-BLOCO              -> COMANDO BLOCO | ε
+INICIO             -> COMANDO INICIO | ε
 
-COMANDO            -> DECLARACAO
-                   | ATRIBUICAO
-                   | DECISAO
-                   | REPETICAO
-                   | RETORNO
+COMANDO            -> VAR_DECL
+                   | ATRIB
+                   | CONDICAO
+                   | REPETIR
                    | FUNCAO
                    | CLASSE
 
--- Elementos léxicos
-ID                 -> [a-zA-Z][a-zA-Z0-9_]*
-NUM                -> [0-9]+ | [0-9]+\.[0-9]+
-BOOLEAN            -> "luz" | "trevas"
-TIPO               -> "inteiro" | "flutuante" | "caractere" | "cadeia" | "bool"
+-- Tipos e Identificadores
+VAR_ID             -> [a-zA-Z][a-zA-Z0-9_]*
+NUMERO             -> [0-9]+ | [0-9]+\.[0-9]+
+TIPO_VAR           -> "int" | "flut" | "char" | "texto"
 
-VALOR              -> ID | NUM | BOOLEAN | "nulo"
-EXPRESSAO          -> EXPR_ARIT | EXPR_LOGICA | VALOR
+VALOR              -> VAR_ID | NUMERO
+EXPRESSAO          -> EXPR_ARIT | VALOR
 
--- Declarações e atribuições
-DECLARACAO         -> TIPO ID "=" EXPRESSAO ";"
-ATRIBUICAO         -> ID OPER_ATRIB EXPRESSAO ";"
-OPER_ATRIB         -> "=" | "+=" | "-="
-
-INCREMENTO         -> ID OPER_INC ";"
-OPER_INC           -> "++" | "--"
+-- Declaração e Atribuição
+VAR_DECL           -> TIPO_VAR VAR_ID "=" EXPRESSAO ";"
+ATRIB              -> VAR_ID "=" EXPRESSAO ";"
 
 -- Expressões Aritméticas
-EXPR_ARIT          -> TERMO | "(" EXPR_ARIT ")" TERMO
-TERMO              -> FATOR | TERMO OPER_MAT FATOR
-FATOR              -> VALOR | "(" EXPR_ARIT ")"
-OPER_MAT           -> "+" | "-" | "*" | "/"
+EXPR_ARIT          -> NUMERO | VAR_ID | EXPR_ARIT OPER_ARIT EXPR_ARIT
+OPER_ARIT          -> "+" | "-" | "*" | "/"
 
--- Expressões Lógicas
-EXPR_LOGICA        -> EXPR_REL EXPR_LOG_CONT
-EXPR_LOG_CONT      -> OPER_LOGICO EXPR_REL EXPR_LOG_CONT | ε
-
-EXPR_REL           -> EXPR_ARIT OPER_REL EXPR_ARIT
-                   | "(" EXPR_LOGICA ")"
-                   | "nao" EXPR_LOGICA
-                   | BOOLEAN
-
-OPER_REL           -> ">" | "<" | "==" | "!=" | "<=" | ">="
-OPER_LOGICO        -> "e" | "ou"
-
--- Controle de Fluxo
-DECISAO            -> "se" "(" EXPR_LOGICA ")" BLOCO_ENCAP DECISAO_AUX
-DECISAO_AUX        -> "senaose" "(" EXPR_LOGICA ")" BLOCO_ENCAP DECISAO_AUX
-                   | "senao" BLOCO_ENCAP
-                   | ε
+-- Condições (Controle de Fluxo)
+CONDICAO           -> "se" "(" EXPRESSAO ")" BLOCO CONDICAO_FIM
+CONDICAO_FIM       -> "senao" BLOCO | ε
 
 -- Estruturas de Repetição
-REPETICAO          -> ENQUANTO | PARA
-
-ENQUANTO           -> "enquanto" "(" EXPR_LOGICA ")" BLOCO_ENCAP
-
-PARA               -> "loop" "(" DECLARACAO ";" EXPR_LOGICA ";" PARA_ATUAL ")" BLOCO_ENCAP
-PARA_ATUAL         -> ATRIBUICAO | INCREMENTO
+REPETIR            -> "enquanto" "(" EXPRESSAO ")" BLOCO
 
 -- Funções
-FUNCAO             -> "deus" ID "(" PARAMS ")" BLOCO_ENCAP
-PARAMS             -> PARAM PARAM_CONT | ε
-PARAM              -> TIPO ID
-PARAM_CONT         -> "," PARAM PARAM_CONT | ε
+FUNCAO             -> "func" VAR_ID "(" PARAMS ")" BLOCO
+PARAMS             -> TIPO_VAR VAR_ID | TIPO_VAR VAR_ID "," PARAMS | ε
 
--- Retorno
-RETORNO            -> "amen" EXPRESSAO ";"
-
--- Classes
-CLASSE             -> "alma" ID BLOCO_ENCAP
-
--- Blocos
-BLOCO_ENCAP        -> "{" BLOCO "}"
+-- Bloco de Código
+BLOCO              -> "{" INICIO "}"
 ```
