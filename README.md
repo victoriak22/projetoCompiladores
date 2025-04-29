@@ -143,4 +143,10 @@ PARAM_CONT         -> "," PARAM PARAM_CONT | ε
 
 -- Retorno
 RETORNO            -> "amen" EXPRESSAO ";"
+
+-- Classes
+CLASSE             -> "alma" ID BLOCO_ENCAP
+
+-- Blocos
+BLOCO_ENCAP        -> "{" BLOCO "}"
 ```
