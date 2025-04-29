@@ -83,12 +83,13 @@ COMANDO            -> VAR_DECL
                    | CONDICAO
                    | REPETIR
                    | FUNCAO
-                   | CLASSE  -- Adicionando CLASSE
+                   | CLASSE
+                   | ESCOLHA
 
 -- Tipos e Identificadores
 VAR_ID             -> [a-zA-Z][a-zA-Z0-9_]* 
 NUMERO             -> [0-9]+ | [0-9]+\.[0-9]+
-TIPO_VAR           -> "int" | "flut" | "char" | "texto"
+TIPO_VAR           -> "inteiro" | "flutuante" | "caractere" | "cadeia"
 
 VALOR              -> VAR_ID | NUMERO
 EXPRESSAO          -> EXPR_ARIT | EXPR_LOGICA | VALOR
@@ -103,22 +104,32 @@ OPER_ARIT          -> "+" | "-" | "*" | "/"
 
 -- Condições (Controle de Fluxo)
 CONDICAO           -> "se" "(" EXPRESSAO ")" BLOCO CONDICAO_FIM
-CONDICAO_FIM       -> "senao" BLOCO | ε
+CONDICAO_FIM       -> "senao" BLOCO | "senaose" "(" EXPRESSAO ")" BLOCO CONDICAO_FIM | ε
 
 -- Estruturas de Repetição
 REPETIR            -> "enquanto" "(" EXPRESSAO ")" BLOCO
+LOOP               -> "loop" "(" VAR_DECL ";" EXPRESSAO ";" ATRIB ")" BLOCO
 
 -- Funções
-FUNCAO             -> "func" VAR_ID "(" PARAMS ")" BLOCO
+FUNCAO             -> "deus" VAR_ID "(" PARAMS ")" BLOCO
 PARAMS             -> TIPO_VAR VAR_ID | TIPO_VAR VAR_ID "," PARAMS | ε
 
 -- Definição de Classe
-CLASSE             -> "alma" VAR_ID BLOCO   -- Adicionando CLASSE
+CLASSE             -> "alma" VAR_ID BLOCO
 
 -- Bloco de Código
 BLOCO              -> "{" INICIO "}"
 
 -- Expressões Lógicas
-EXPR_LOGICA        -> EXPR_ARIT OPER_LOG EXPR_ARIT
+EXPR_LOGICA        -> EXPR_ARIT OPER_LOG EXPR_ARIT | "nao" EXPR_LOGICA | VALOR
 OPER_LOG           -> "e" | "ou"
+
+-- Controle de Fluxo: "parar", "continuar" e "amen"
+PARAR              -> "parar" ";"
+CONTINUAR          -> "continuar" ";"
+RETORNO            -> "amen" EXPRESSAO ";"
+
+-- Bloco de Escolha
+ESCOLHA            -> "escolha" "(" EXPRESSAO ")" BLOCO ESCOLHA_FIM
+ESCOLHA_FIM        -> "caso" EXPRESSAO BLOCO ESCOLHA_FIM | "padrao" BLOCO | ε
 ```
