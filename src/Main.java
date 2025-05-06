@@ -1,14 +1,14 @@
-import java.io.IOException;
-import java.util.List;
-
 public class Main {
     public static void main(String[] args) throws IOException {
-        List<Token> tokens = null;
-        String data = "\tdeus verificarNumero(inteiro x) { se (x > 10) { amen \"Maior que 10!\"; }\n senao { amen 'Menor ou igual a 10!'; }\r }";
+        String data = "\tdeus verificarNumero(inteiro x) { se (x > 10): amen \"Maior que 10!\" senao: amen 'Menor ou igual a 10!' }";
         Lexer lexer = new Lexer(data);
-        tokens = lexer.getTokens();
+        List<Token> tokens = lexer.getTokens();
+        tokens.add(new Token("EOF", "EOF")); // Adicione EOF ao final
         for (Token t : tokens) {
             System.out.println(t);
         }
+
+        Parser parser = new Parser(tokens);
+        parser.main(); // inicia análise sintática
     }
 }
