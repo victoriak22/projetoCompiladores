@@ -55,17 +55,73 @@ O compilador PSALMS realiza um processo em três fases:
 ## 💻 Exemplo de Código PSALMS
 
 ```psalms
-deus verificarNumero(inteiro x) {
-    se (x > 10) {
-        amen "Maior que 10!";
-    } senao {
-        amen "Menor ou igual a 10!";
-    }
+EXEMPLO 1 — LOOP COM CONDICIONAL:
+
+minhaAlma -> lista {
+	loop(i -> 0; i < 5; i -> i + 1) {
+		se(i % 2 == 0):
+			="Número par: " + i
+		senao:
+			="Número ímpar: " + i
+	}
 }
 
-deus principal() {
-    cadeia nome = "Pedro";
-    verificarNumero(15);
+
+EXEMPLO 2 — FUNÇÃO COM RETORNO:
+
+somaDivina -> A, B {
+	:resultado -> A + B
+	amen :resultado
+}
+
+resultadoFinal -> somaDivina(5, 7)
+="Resultado da soma: " + resultadoFinal
+
+
+EXEMPLO 3 — ESCOLHA (SWITCH/CASE):
+
+verboCelestial -> comando {
+	escolha(comando) {
+		caso "orar":
+			="Você escolheu orar."
+			parar
+		caso "louvar":
+			="Você escolheu louvar."
+			parar
+		padrao:
+			="Comando desconhecido."
+	}
+}
+
+
+EXEMPLO 4 — TRATAMENTO DE ERROS:
+
+divisaoCelestial -> A, B {
+	tente {
+		se(B == 0):
+			lancarErro -> "Divisão pelas trevas"
+		:resultado -> A / B
+		amen :resultado
+	}
+	capturar(e):
+		="Erro: " + e
+}
+
+
+EXEMPLO 5 — CLASSE SIMPLES:
+
+publico alma Pessoa {
+	:nome -> ""
+	:idade -> 0
+
+	deus construtor -> nomeParam, idadeParam {
+		este.nome -> nomeParam
+		este.idade -> idadeParam
+	}
+
+	deus falar -> {
+		="Olá, meu nome é " + este.nome
+	}
 }
 ```
 
@@ -74,62 +130,56 @@ deus principal() {
 ## 📜 Gramática da Linguagem PSALMS
 
 ```bnf
-PROGRAMA           -> INICIO
+ListaComandos → Comando ListaComandos | ε
 
-INICIO             -> COMANDO INICIO | ε
+Comando → Declaracao 
+        | Atribuicao 
+        | EstruturaCondicional 
+        | EstruturaLoop
+        | EstruturaEscolha 
+        | TratamentoErros 
+        | ChamadaFuncao 
+        | Comentario
 
-COMANDO            -> DECLARACAO_VARIAVEL
-                   | ATRIBUICAO
-                   | CONDICAO
-                   | ESTRUTURA_REPETICAO
-                   | DEFINICAO_FUNCAO
-                   | DEFINICAO_CLASSE
-                   | ESCOLHA
+Comentario → "--" texto
 
--- Tipos e Identificadores
-IDENTIFICADOR_VARIAVEL -> [a-zA-Z][a-zA-Z0-9_]* 
-NUMERO_DECIMAL      -> [0-9]+ | [0-9]+\.[0-9]+
-TIPO_VARIAVEL       -> "inteiro" | "flutuante" | "caractere" | "cadeia"
+Declaracao → deus identificador -> Parametros { ListaComandos }
 
-VALOR_VARIAVEL      -> IDENTIFICADOR_VARIAVEL | NUMERO_DECIMAL
-EXPRESSAO           -> EXPRESSAO_ARITMETICA | EXPRESSAO_LOGICA | VALOR_VARIAVEL
+Parametros → identificador 
+           | identificador , Parametros 
+           | ε
 
--- Declaração e Atribuição de Variáveis
-DECLARACAO_VARIAVEL -> TIPO_VARIAVEL IDENTIFICADOR_VARIAVEL "=" EXPRESSAO ";" 
-ATRIBUICAO          -> IDENTIFICADOR_VARIAVEL "=" EXPRESSAO ";"
+Atribuicao → :identificador -> Expressao
+           | este.identificador -> Expressao
 
--- Expressões Aritméticas
-EXPRESSAO_ARITMETICA -> NUMERO_DECIMAL | IDENTIFICADOR_VARIAVEL | EXPRESSAO_ARITMETICA OPERADOR_ARITMETICO EXPRESSAO_ARITMETICA
-OPERADOR_ARITMETICO -> "+" | "-" | "*" | "/"
+Expressao → Valor 
+          | Expressao operador Expressao 
+          | ChamadaFuncao
 
--- Condições (Controle de Fluxo)
-CONDICAO            -> "se" "(" EXPRESSAO ")" BLOCO CONDICAO_FIM
-CONDICAO_FIM        -> "senao" BLOCO | "senaose" "(" EXPRESSAO ")" BLOCO CONDICAO_FIM | ε
+Valor → literal_numerico 
+      | literal_texto 
+      | identificador 
+      | luz 
+      | trevas 
+      | nulo
 
--- Estruturas de Repetição
-ESTRUTURA_REPETICAO -> "enquanto" "(" EXPRESSAO ")" BLOCO
-LOOP                -> "loop" "(" DECLARACAO_VARIAVEL ";" EXPRESSAO ";" ATRIBUICAO ")" BLOCO
+ChamadaFuncao → identificador ( Parametros )
 
--- Funções
-DEFINICAO_FUNCAO    -> "deus" IDENTIFICADOR_VARIAVEL "(" PARAMETROS ")" BLOCO
-PARAMETROS          -> TIPO_VARIAVEL IDENTIFICADOR_VARIAVEL | TIPO_VARIAVEL IDENTIFICADOR_VARIAVEL "," PARAMETROS | ε
+EstruturaCondicional → se (Expressao): ListaComandos
+                     | senaose (Expressao): ListaComandos
+                     | senao: ListaComandos
 
--- Definição de Classe
-DEFINICAO_CLASSE    -> "alma" IDENTIFICADOR_VARIAVEL BLOCO
+EstruturaLoop → loop (Atribuicao ; Expressao ; Atribuicao) { ListaComandos }
+              | enquanto (Expressao) { ListaComandos }
 
--- Bloco de Código
-BLOCO               -> "{" INICIO "}"
+EstruturaEscolha → escolha (Expressao) {
+                     Casos padrao
+                   }
 
--- Expressões Lógicas
-EXPRESSAO_LOGICA    -> EXPRESSAO_ARITMETICA OPERADOR_LOGICO EXPRESSAO_ARITMETICA | "nao" EXPRESSAO_LOGICA | VALOR_VARIAVEL
-OPERADOR_LOGICO     -> "e" | "ou"
+Casos → caso Valor : ListaComandos Casos 
+      | ε
 
--- Controle de Fluxo: "parar", "continuar" e "amen"
-COMANDO_PARAR       -> "parar" ";"
-COMANDO_CONTINUAR   -> "continuar" ";"
-COMANDO_RETORNO     -> "amen" EXPRESSAO ";"
+padrao → padrao : ListaComandos
 
--- Bloco de Escolha
-ESCOLHA             -> "escolha" "(" EXPRESSAO ")" BLOCO ESCOLHA_FIM
-ESCOLHA_FIM         -> "caso" EXPRESSAO BLOCO ESCOLHA_FIM | "padrao" BLOCO | ε
+TratamentoErros → tente { ListaComandos } capturar (identificador): ListaComandos
 ```
