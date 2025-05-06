@@ -110,19 +110,13 @@ divisaoCelestial -> A, B {
 
 EXEMPLO 5 — CLASSE SIMPLES:
 
-publico alma Pessoa {
-	:nome -> ""
-	:idade -> 0
-
-	deus construtor -> nomeParam, idadeParam {
-		este.nome -> nomeParam
-		este.idade -> idadeParam
-	}
-
-	deus falar -> {
-		="Olá, meu nome é " + este.nome
-	}
+multiplicar -> A, B {
+	:resultado -> A * B
+	amen :resultado
 }
+
+resultadoMultiplicacao -> multiplicar(3, 4)
+="Resultado da multiplicação: " + resultadoMultiplicacao
 ```
 
 ---
