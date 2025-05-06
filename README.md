@@ -57,7 +57,7 @@ O compilador PSALMS realiza um processo em três fases:
 ```psalms
 EXEMPLO 1 — LOOP COM CONDICIONAL:
 
-minhaAlma -> lista {
+deus minhaAlma -> lista {
 	loop(i -> 0; i < 5; i -> i + 1) {
 		se(i % 2 == 0):
 			="Número par: " + i
@@ -69,7 +69,7 @@ minhaAlma -> lista {
 
 EXEMPLO 2 — FUNÇÃO COM RETORNO:
 
-somaDivina -> A, B {
+deus somaDivina -> A, B {
 	:resultado -> A + B
 	amen :resultado
 }
@@ -80,7 +80,7 @@ resultadoFinal -> somaDivina(5, 7)
 
 EXEMPLO 3 — ESCOLHA (SWITCH/CASE):
 
-verboCelestial -> comando {
+deus verboCelestial -> comando {
 	escolha(comando) {
 		caso "orar":
 			="Você escolheu orar."
@@ -96,7 +96,7 @@ verboCelestial -> comando {
 
 EXEMPLO 4 — TRATAMENTO DE ERROS:
 
-divisaoCelestial -> A, B {
+deus divisaoCelestial -> A, B {
 	tente {
 		se(B == 0):
 			lancarErro -> "Divisão pelas trevas"
@@ -110,7 +110,7 @@ divisaoCelestial -> A, B {
 
 EXEMPLO 5 — CLASSE SIMPLES:
 
-multiplicar -> A, B {
+deus multiplicar -> A, B {
 	:resultado -> A * B
 	amen :resultado
 }
