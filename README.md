@@ -99,7 +99,7 @@ EXEMPLO 4 — TRATAMENTO DE ERROS:
 deus divisaoCelestial -> A, B {
 	tente {
 		se(B == 0):
-			lancarErro -> "Divisão pelas trevas"
+			deus lancarErro -> "Divisão pelas trevas"
 		:resultado -> A / B
 		amen :resultado
 	}
