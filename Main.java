@@ -13,11 +13,11 @@ public class Main {
         Lexer lexer = new Lexer(data);
         List<Token> tokens = lexer.getTokens();
         tokens.add(new Token("EOF", "EOF")); // Adicione EOF ao final
-        for (Token t : tokens) {
-            //System.out.println(t);
-        }
 
-        System.out.println("Léxico finaliza... INICIALIZANDO PARSER");
+        // System.out.println(tokens);
+
+        System.out.println("Léxico finalizado...");
+        System.out.println("Inicializando parser...");
 
         Parser parser = new Parser(tokens);
         parser.main(); // inicia análise sintática
