@@ -39,6 +39,7 @@ A linguagem **PSALMS** foi projetada com uma forte influência de palavras que f
 | `case`              | `caso`                 |
 | `default`           | `padrao`               |
 | `function`          | `deus`                 |
+| `System.out.println('Teste')`	      |	`="'Teste'"`		       |
 
 ---
 
