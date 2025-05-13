@@ -61,9 +61,9 @@ EXEMPLO 1 — LOOP COM CONDICIONAL:
 deus minhaAlma -> lista {
 	loop(i -> 0; i < 5; i -> i + 1) {
 		se(i % 2 == 0):
-			="Número par: " + i
+			="'Número par: '" + i
 		senao:
-			="Número ímpar: " + i
+			="'Número ímpar: '" + i
 	}
 }
 
@@ -76,7 +76,7 @@ deus somaDivina -> A, B {
 }
 
 resultadoFinal -> somaDivina(5, 7)
-="Resultado da soma: " + resultadoFinal
+Resultado da soma: " + resultadoFinal
 
 
 EXEMPLO 3 — ESCOLHA (SWITCH/CASE):
@@ -84,13 +84,13 @@ EXEMPLO 3 — ESCOLHA (SWITCH/CASE):
 deus verboCelestial -> comando {
 	escolha(comando) {
 		caso "orar":
-			="Você escolheu orar."
+			Você escolheu orar."
 			parar
 		caso "louvar":
-			="Você escolheu louvar."
+			="'Você escolheu louvar.'"
 			parar
 		padrao:
-			="Comando desconhecido."
+			="'Comando desconhecido.'"
 	}
 }
 
@@ -105,7 +105,7 @@ deus divisaoCelestial -> A, B {
 		amen :resultado
 	}
 	capturar(e):
-		="Erro: " + e
+		="'Erro: '" + e
 }
 
 
@@ -117,7 +117,7 @@ deus multiplicar -> A, B {
 }
 
 resultadoMultiplicacao -> multiplicar(3, 4)
-="Resultado da multiplicação: " + resultadoMultiplicacao
+="'Resultado da multiplicação: '" + resultadoMultiplicacao
 ```
 
 ---
