@@ -1,6 +1,9 @@
-package Compilador;
+package sintatico;
+
 
 import java.util.List;
+
+import lexico.Token;
 
 public class Parser {
     List<Token> tokens;

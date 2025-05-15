@@ -1,8 +1,22 @@
-package Compilador;
+package lexico;
+
 
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.List;
+
+import lexico.tokens.AFD;
+import lexico.tokens.Delimiters;
+import lexico.tokens.EOFToken;
+import lexico.tokens.Identifier;
+import lexico.tokens.Limiters;
+import lexico.tokens.MathOperator;
+import lexico.tokens.Number;
+import lexico.tokens.PrintToken;
+import lexico.tokens.RelationalOperator;
+import lexico.tokens.ReservedWords;
+import lexico.tokens.StringIdentifier;
+
 import java.util.ArrayList;
 
 public class Lexer {

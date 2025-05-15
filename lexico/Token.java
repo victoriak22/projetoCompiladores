@@ -1,4 +1,5 @@
-package Compilador;
+package lexico;
+
 
 public class Token{
 

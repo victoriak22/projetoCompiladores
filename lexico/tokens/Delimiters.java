@@ -1,6 +1,9 @@
-package Compilador;
+package lexico.tokens;
+
 
 import java.text.CharacterIterator;
+
+import lexico.Token;
 
 public class Delimiters extends AFD {
 

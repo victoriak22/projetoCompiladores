@@ -1,25 +1,37 @@
+
+
 import java.io.IOException;
 import java.util.List;
 
+import lexico.Lexer;
+import lexico.Token;
+import sintatico.Parser;
+
 public class Main {
     public static void main(String[] args) throws IOException {
-        String data = "deus multiplicar -> A, B {\r\n" + //
-                        "\t:resultado -> A * B\r\n" + //
-                        "\tamen :resultado\r\n" + //
-                        "}\r\n" + //
-                        "\r\n" + //
-                        "resultadoMultiplicacao -> multiplicar(3, 4)\r\n" + //
-                        "=\"Resultado da multiplicação: \" + resultadoMultiplicacao";
-        Lexer lexer = new Lexer(data);
-        List<Token> tokens = lexer.getTokens();
-        tokens.add(new Token("EOF", "EOF")); // Adicione EOF ao final
+        String data = 
+    "deus :multiplicar -> :A, :B {\n" +
+    "  :resultado -> :A * :B\n" +
+    "  amen :resultado\n" +
+    "}\n" +
+    "\n" +
+    ":resultadoMultiplicacao -> :multiplicar(3, 4)\n" +
+    "=\"'Resultado da multiplicação: ' :resultadoMultiplicacao\"\n";
 
-        // System.out.println(tokens);
+Lexer lexer = new Lexer(data);
+List<Token> tokens = lexer.getTokens();
 
-        System.out.println("Léxico finalizado...");
+        // 🟡 Imprime todos os tokens gerados
+        System.out.println("Tokens gerados:");
+        for (Token t : tokens) {
+            System.out.println(t);
+        }
+        System.out.println("\nLéxico finalizado...");
+
         System.out.println("Inicializando parser...");
 
         Parser parser = new Parser(tokens);
-        parser.main(); // inicia análise sintática
+        parser.main(); // Inicia análise sintática
     }
 }
+

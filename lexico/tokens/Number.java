@@ -1,4 +1,9 @@
+package lexico.tokens;
+
+
 import java.text.CharacterIterator;
+
+import lexico.Token;
 
 public class Number extends AFD {
 
