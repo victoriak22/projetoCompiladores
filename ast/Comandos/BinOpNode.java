@@ -1,31 +1,40 @@
-package Compilador.ast.Comandos;  // Mudei para Expressoes (mais semântico)
+package Compilador.ast.Comandos;
 
-import Compilador.ast.ASTNode;
+import Compilador.ast.*;
 
 public class BinOpNode extends ASTNode {
-    // Mudei para public final (imutável, melhor para AST)
-    public final ASTNode left;
-    public final String op;
-    public final ASTNode right;
+    private final ASTNode left;
+    private final String op;
+    private final ASTNode right;
 
     public BinOpNode(ASTNode left, String op, ASTNode right) {
-        if (left == null || right == null || op == null) {
-            throw new IllegalArgumentException("Operandos/operador não podem ser nulos");
-        }
         this.left = left;
         this.op = op;
         this.right = right;
     }
 
     @Override
-    public String toString(int indent) {
-        return "  ".repeat(indent) + "BinOp(" + op + ")\n" +
-               left.toString(indent + 1) + 
-               right.toString(indent + 1);
+    public String toFormattedString(String indent, boolean isLast) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(indent).append(isLast ? "└── " : "├── ").append("BinOp: ").append(op).append("\n");
+
+        String childIndent = indent + (isLast ? "    " : "│   ");
+
+        sb.append(childIndent).append("├── Left:\n");
+        sb.append(left.toFormattedString(childIndent + "│   ", false)).append("\n");
+
+        sb.append(childIndent).append("└── Right:\n");
+        sb.append(right.toFormattedString(childIndent + "    ", true));
+
+        return sb.toString();
     }
 
-    // Método útil para análise semântica posterior
-    public boolean isArithmetic() {
-        return List.of("+", "-", "*", "/").contains(op);
+    @Override
+    public String toString() {
+        return toFormattedString("", true);
     }
+
+    public ASTNode getLeft() { return left; }
+    public String getOperator() { return op; }
+    public ASTNode getRight() { return right; }
 }

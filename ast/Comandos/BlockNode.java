@@ -1,21 +1,27 @@
 package Compilador.ast.Comandos;
 
-import Compilador.ast.ASTNode;
+import Compilador.ast.*;
 import java.util.List;
 
 public class BlockNode extends ASTNode {
-    public final List<ASTNode> commands;
-    
-    public BlockNode(List<ASTNode> commands) {
-        this.commands = commands;
+    private final List<ASTNode> statements;
+
+    public BlockNode(List<ASTNode> statements) {
+        this.statements = statements;
     }
-    
+
     @Override
-    public String toString(int indent) {
+    public String toFormattedString(String indent, boolean isLast) {
         StringBuilder sb = new StringBuilder();
-        sb.append("  ".repeat(indent)).append("Block\n");
-        for (ASTNode cmd : commands) {
-            sb.append(cmd.toString(indent + 1));
+        sb.append(indent).append(isLast ? "└── " : "├── ").append("Block\n");
+        String childIndent = indent + (isLast ? "    " : "│   ");
+
+        for (int i = 0; i < statements.size(); i++) {
+            boolean isLastStatement = (i == statements.size() - 1);
+            sb.append(statements.get(i).toFormattedString(childIndent, isLastStatement));
+            if (!isLastStatement) {
+                sb.append("\n");
+            }
         }
         return sb.toString();
     }

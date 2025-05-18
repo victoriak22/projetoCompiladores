@@ -10,8 +10,21 @@ public class TryNode extends ASTNode {
     }
 
     @Override
-    public String toString(int indent) {
-        return "  ".repeat(indent) + "Try\n" +
-               tryBlock.toString(indent+1);
+    public String toFormattedString(String indent, boolean isLast) {
+        StringBuilder sb = new StringBuilder();
+        
+        // Try header
+        sb.append(indent).append(isLast ? "└── " : "├── ").append("Try\n");
+        
+        // Try block (using LAST since it's the only child)
+        sb.append(indent).append("    ").append("└── ").append("Block:\n")
+          .append(tryBlock.toFormattedString(indent + "    ", true));  // Pass indentation and true since it's the last node
+        
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return toFormattedString("", true);  // Start with no indent and treat it as the last node
     }
 }

@@ -1,4 +1,3 @@
-// ElseIfNode.java
 package Compilador.ast.Comandos;
 
 import Compilador.ast.ASTNode;
@@ -13,9 +12,27 @@ public class ElseIfNode extends ASTNode {
     }
 
     @Override
-    public String toString(int indent) {
-        return "  ".repeat(indent) + "ElseIf\n" +
-               condicao.toString(indent + 1) +
-               corpo.toString(indent + 1);
+    public String toFormattedString(String indent, boolean isLast) {
+        StringBuilder sb = new StringBuilder();
+
+        // Cabeçalho do ElseIf
+        sb.append(indent).append(isLast ? "└── " : "├── ").append("ElseIf\n");
+
+        String childIndent = indent + (isLast ? "    " : "│   ");
+
+        // Condição
+        sb.append(childIndent).append("├── ").append("Condition:\n");
+        sb.append(condicao.toFormattedString(childIndent + "│   ", false));
+
+        // Corpo
+        sb.append(childIndent).append("└── ").append("Body:\n");
+        sb.append(corpo.toFormattedString(childIndent + "    ", true));
+
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return toFormattedString("", true);
     }
 }

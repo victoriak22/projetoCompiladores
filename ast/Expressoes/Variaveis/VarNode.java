@@ -1,16 +1,26 @@
 package Compilador.ast.Expressoes.Variaveis;
+
 import Compilador.ast.ASTNode;
 
-// Variável (ex: :x)
 public class VarNode extends ASTNode {
-    public String name;
+    private final String name;
 
     public VarNode(String name) {
         this.name = name;
     }
 
     @Override
-    public String toString(int indent) {
-        return "  ".repeat(indent) + "Var(" + name + ")\n";
+    public String toFormattedString(String indent, boolean isLast) {
+        return indent + (isLast ? "└── " : "├── ") + name + "\n";
+    }
+
+    @Override
+    public String toString() {
+        return toFormattedString("", true); // Usa versão formatada para consistência
+    }
+
+    // Método de acesso
+    public String getName() {
+        return name;
     }
 }

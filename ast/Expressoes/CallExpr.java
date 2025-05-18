@@ -1,26 +1,44 @@
 package Compilador.ast.Expressoes;
 
-import Compilador.ast.ASTNode;
 import java.util.List;
+import Compilador.ast.*;
 
 public class CallExpr extends ASTNode {
-    public final String functionName;
-    public final List<ASTNode> arguments;
+    private final String functionName;
+    private final List<ASTNode> args;
 
-    public CallExpr(String functionName, List<ASTNode> arguments) {
-        this.functionName = functionName;
-        this.arguments = arguments;
+    public CallExpr(String functionName, List<ASTNode> args) {
+        this.functionName = functionName.startsWith(":") ? 
+                            functionName.substring(1) : functionName;
+        this.args = args;
     }
 
     @Override
-    public String toString(int indent) {
+    public String toFormattedString(String indent, boolean isLast) {
         StringBuilder sb = new StringBuilder();
-        sb.append("  ".repeat(indent))
-          .append("Call(").append(functionName).append(")\n");
-        
-        for (ASTNode arg : arguments) {
-            sb.append(arg.toString(indent + 1));
+
+        // Cabeçalho da chamada de função
+        sb.append(indent).append(isLast ? "└── " : "├── ")
+          .append("Call: ").append(functionName).append("\n");
+
+        String childIndent = indent + (isLast ? "    " : "│   ");
+
+        // Se houver argumentos
+        if (!args.isEmpty()) {
+            sb.append(childIndent).append("├── Arguments:\n");
+
+            for (int i = 0; i < args.size(); i++) {
+                boolean lastArg = (i == args.size() - 1);
+                sb.append(args.get(i).toFormattedString(childIndent + (lastArg ? "    " : "│   "), lastArg));
+                if (!lastArg) sb.append("\n");
+            }
         }
+
         return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return toFormattedString("", true);
     }
 }

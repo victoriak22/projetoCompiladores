@@ -1,13 +1,15 @@
-package Compilador;
+package Compilador.Sintatico;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import Compilador.Lexico.Token;
 import Compilador.ast.ASTNode;
 import Compilador.ast.Expressoes.*;
 import Compilador.ast.Expressoes.Variaveis.ParamNode;
 import Compilador.ast.Expressoes.Variaveis.VarNode;
 import Compilador.ast.Comandos.*;
+
+
 
 
 
@@ -34,6 +36,8 @@ public class Parser {
         // }
     }
 
+    
+
     public Token getNextToken() {
         while (!tokens.isEmpty()) {
             Token next = tokens.remove(0);
@@ -51,65 +55,71 @@ public class Parser {
     }
 
     private void erro(String mensagem) {
-        StringBuilder erro = new StringBuilder();
+    StringBuilder sb = new StringBuilder();
     
-        // Cabeçalho vermelho
-        erro.append(ANSI_RED).append("\n--- ERRO SINTÁTICO ---").append(ANSI_RESET).append("\n");
+    // Cabeçalho do erro com borda estilizada
+    sb.append("\n\u001B[31m╔═══════════════════════════════════════════\u001B[0m\n");
+    sb.append("\u001B[31m║ \u001B[1;31mERRO SINTÁTICO\u001B[0m \u001B[31m                          ║\u001B[0m\n");
+    sb.append("\u001B[31m╠═══════════════════════════════════════════\u001B[0m\n");
     
-        // Mensagem principal (vermelho)
-        erro.append(ANSI_RED).append("Mensagem: ").append(ANSI_RESET).append(mensagem).append("\n");
+    // Mensagem principal
+    sb.append("\u001B[31m║ \u001B[0m• \u001B[1mMotivo:\u001B[0m ").append(mensagem).append("\n");
     
-        if (token != null) {
-            // Detalhes do token (amarelo)
-            erro.append(ANSI_YELLOW).append("Token atual: ").append(ANSI_RESET)
-                .append(token.getLexema())
-                .append(" (Tipo: ").append(token.getTipo()).append(")\n");
+    if (token != null) {
+        // Detalhes do token atual
+        sb.append("\u001B[31m║ \u001B[0m• \u001B[1mToken:\u001B[0m ")
+          .append("\u001B[33m'").append(token.getLexema()).append("'\u001B[0m")
+          .append(" (Tipo: \u001B[36m").append(token.getTipo()).append("\u001B[0m)\n");
         
-            // Contexto (ciano)
-            erro.append(ANSI_CYAN).append("Contexto: ...");
-            for (int i = 0; i < 3 && i < tokens.size(); i++) {
-                erro.append(tokens.get(i).getLexema()).append(" ");
-            }
-            erro.append(ANSI_RESET).append("\n");
+        // Contexto com seta indicando a posição
+        sb.append("\u001B[31m║ \u001B[0m• \u001B[1mContexto:\u001B[0m ");
+        int contextSize = Math.min(5, tokens.size());
+        for (int i = 0; i < contextSize; i++) {
+            if (i > 0) sb.append(" ");
+            if (i == 0) sb.append("\u001B[7m"); // Destaca o token atual
+            sb.append(tokens.get(i).getLexema());
+            if (i == 0) sb.append("\u001B[0m");
         }
-    
-        // Rodapé vermelho
-        erro.append(ANSI_RED).append("----------------------").append(ANSI_RESET);
-    
-        // Log sem cores adicionais (o método log() já aplicará formatação)
-        System.err.println(erro.toString());
-        System.exit(1);
+        sb.append("\n");
+        
+        // Sugestões baseadas no tipo de erro
+        if (token.getLexema().equals(")")) {
+            sb.append("\u001B[31m║ \u001B[0m• \u001B[1mSugestão:\u001B[0m Verifique parênteses balanceados\n");
+        } else if (token.getTipo().equals("ID")) {
+            sb.append("\u001B[31m║ \u001B[0m• \u001B[1mSugestão:\u001B[0m Variável não declarada ou uso incorreto\n");
+        }
     }
+    
+    // Rodapé
+    sb.append("\u001B[31m╚═══════════════════════════════════════════\u001B[0m\n\n");
+    
+    // Exibe o erro no stderr
+    System.err.println(sb.toString());
+    
+    // Sai com código de erro padrão para sintaxe inválida
+    System.exit(65); // Código de saída padrão para erros de sintaxe
+}
 
-    public ASTNode parse() {  // Renomeamos para 'parse' para refletir melhor a função
-        token = getNextToken();
-        if (token == null) {
-            erro("Nenhum token encontrado");
-            return null;
-        }
-
-        List<ASTNode> comandos = new ArrayList<>();
-        while (token != null && !token.getTipo().equals("EOF")) {
-            ASTNode cmd = comando();
-            if (cmd != null) {
-                comandos.add(cmd);
-            } else if (token != null) {  // Avança se houver erro não crítico
-                avancaToken();
-            }
-        }
-
-        if (!comandos.isEmpty()) {
-            System.out.println("\n✅ Análise sintática concluída com sucesso");
-            System.out.println("\nÁrvore Sintática Abstrata (AST):");
-            for (ASTNode cmd : comandos) {
-                System.out.println(cmd.toString(0));
-            }
-            return new BlockNode(comandos);  // Retorna o bloco raiz
+    public ASTNode parse() {
+    token = getNextToken();
+    List<ASTNode> comandos = new ArrayList<>();
+    
+    while (token != null && !token.getTipo().equals("EOF")) {
+        ASTNode cmd = comando();
+        if (cmd != null) {
+            comandos.add(cmd);
         } else {
-            erro("Nenhum comando válido encontrado");
-            return null;
+            avancaToken(); // Avança se não reconhecer o comando
         }
     }
+    
+    if (comandos.isEmpty()) {
+        erro("Nenhum comando válido encontrado");
+        return null;
+    }
+    
+    return new BlockNode(comandos);
+}
 
     public BlockNode listaComandos() {
         List<ASTNode> comandos = new ArrayList<>();
@@ -121,16 +131,10 @@ public class Parser {
     }
 
     public ASTNode comando() {
-        // 1. Comando PRINT
-        if (token != null && token.getTipo().equals("PRINT")) {
-            avancaToken();
-            ASTNode expr = expressao();
-            if (expr == null) {
-                erro("Esperava expressão após PRINT");
-                return null;
-            }
-            return new PrintNode(expr);
-        }
+
+        ASTNode print = comandoPrint();
+        if (print != null) return print;
+
 
         // 2. Delimitadores (opcional)
         if (token != null && (token.getLexema().equals(",") || token.getLexema().equals(";"))) {
@@ -170,32 +174,56 @@ public class Parser {
 
 
     public ASTNode declaracao() {
-        // 1. Verifica a palavra-chave 'deus'
-        if (matchL("deus") == null) return null;
+    // 1. Verifica 'deus'
+    if (matchL("deus") == null) return null;
     
-        // 2. Pega o nome da função (ex: ":minhaFuncao")
-        Token nomeFuncao = matchT("ID");
-        if (nomeFuncao == null || !nomeFuncao.getLexema().startsWith(":")) {
-            erro("Nome de função inválido");
-            return null;
+    // 2. Obtém nome da função (remove o ':' inicial)
+    Token nomeFuncao = matchT("ID");
+    if (nomeFuncao == null || !nomeFuncao.getLexema().startsWith(":")) {
+        erro("Nome de função inválido. Deve começar com ':'");
+        return null;
+    }
+    String nomeSanitizado = nomeFuncao.getLexema().substring(1); // Remove o ':'
+
+    // 3. Verifica '->'
+    if (matchL("->") == null) {
+        erro("Esperado '->' após nome da função");
+        return null;
+    }
+
+    // 4. Coleta parâmetros (com sanitização)
+    List<ParamNode> params = new ArrayList<>();
+    Token paramToken = matchT("ID");
+    
+    if (paramToken != null && paramToken.getLexema().startsWith(":")) {
+        params.add(new ParamNode(paramToken.getLexema()));
+        
+        while (matchL(",") != null) {
+            paramToken = matchT("ID");
+            if (paramToken == null || !paramToken.getLexema().startsWith(":")) {
+                erro("Parâmetro inválido após vírgula");
+                return null;
+            }
+            params.add(new ParamNode(paramToken.getLexema()));
         }
+    } else {
+        erro("Pelo menos um parâmetro é necessário");
+        return null;
+    }
 
-        // 3. Verifica o símbolo '->'
-        if (matchL("->") == null) {
-            erro("Esperado '->' após nome da função");
-            return null;
-        }
+    // 5. Obtém corpo
+    BlockNode corpo = bloco();
+    if (corpo == null) {
+        erro("Corpo da função inválido ou faltando");
+        return null;
+    }
 
-        // 4. Obtém os parâmetros (agora retorna List<ASTNode> de ParamNode)
-        List<ASTNode> parametros = parametros();
-        if (parametros == null) return null; // Se houver erro
-
-        // 5. Obtém o corpo da função
-        ASTNode corpo = bloco();
-        if (corpo == null) return null;
-
-        // 6. Cria o nó de declaração de função
-        return new FunctionDeclNode(nomeFuncao.getLexema(), parametros, corpo);
+        // 6. Retorna o nó formatado
+        return new FunctionDeclNode(
+            nomeSanitizado,  // Nome SEM ':'
+            params,          // List<ParamNode> 
+            corpo            // BlockNode
+        );
     }
 
     public ASTNode comandoReturn() {
@@ -216,66 +244,40 @@ public class Parser {
             return tipo.equals("id") || tipo.equals("MULTIPLY_FUNC") || tipo.equals("SOMAR_FUNC") || tipo.equals("DIVIDIR_FUNC");
         }
 
+    // Para chamada de função (ex: `soma(1, 2)`)
+    private List<ASTNode> parseArgumentos() {
+    List<ASTNode> args = new ArrayList<>();
     
-    public List<ASTNode> parametros() {
-        List<ASTNode> params = new ArrayList<>(); // Nome da variável: params
-
-        // Caso 1: Parâmetros formais (declaração de função)
-        if (token != null && token.getTipo().equals("ID") && token.getLexema().startsWith(":")) {
-            // Primeiro parâmetro
-            Token paramToken = matchT("ID");
-            if (paramToken == null) {
-                erro("Esperava identificador como parâmetro");
-                return null;
-            }
-            params.add(new ParamNode(paramToken.getLexema()));
-
-            // Parâmetros adicionais
-            while (matchL(",") != null) {
-                paramToken = matchT("ID");
-                if (paramToken == null) {
-                    erro("Esperava identificador após vírgula");
-                    return null;
-                }
-                params.add(new ParamNode(paramToken.getLexema()));
-            }
-            return params;
-        }
-        // Caso 2: Argumentos em chamada de função (2+3, x)
-        else if (matchL("(") != null) {
-            if (matchL(")") != null) {
-                return params; // Lista vazia (agora usando 'params')
-            }
-
-            do {
-                ASTNode expr = expressao();
-                if (expr == null) {
-                    erro("Argumento inválido");
-                    return null;
-                }
-                params.add(expr); // Adiciona expressão à lista
-            } while (matchL(",") != null);
-
-            if (matchL(")") == null) {
-                erro("Esperava ')' ao final dos argumentos");
-                return null;
-            }
-            return params; // Retorna a lista de argumentos
-        }
-
-        return null; // Não é uma lista de parâmetros
+    // Processa primeiro argumento
+    ASTNode expr = expressao();
+    if (expr != null) {
+        args.add(expr);
     }
+
+    // Processa argumentos adicionais
+    while (token != null && token.getLexema().equals(",")) {
+        avancaToken(); // Consome ","
+        expr = expressao();
+        if (expr != null) {
+            args.add(expr);
+        } else {
+            erro("Esperado expressão após ','");
+        }
+    }
+
+    return args;
+}
 
     public ASTNode atribuicao() {
-        Token idToken = matchT("ID");
-        if (idToken != null && matchL("->") != null) {
-            ASTNode expr = expressao();
-            if (expr != null) {
-                return new AssignNode(new VarNode(idToken.getLexema()), expr);
-            }
+    Token idToken = matchT("ID");
+    if (idToken != null && matchL("->") != null) {
+        ASTNode expr = expressao();
+        if (expr != null) {
+            return new AssignNode(new VarNode(idToken.getLexema()), expr);
         }
-        return null;
     }
+    return null;
+}
 
     public BlockNode bloco() {
         if (!consumirDelimitador("{")) {
@@ -303,21 +305,14 @@ public class Parser {
 
 
     public ASTNode expressao() {
-    ASTNode node = termo();
-    if (node == null) return null;
-
-    while (token != null && (token.getLexema().equals("+") || token.getLexema().equals("-"))) {
-        Token op = token;
-        avancaToken();
-        ASTNode right = termo();
-        if (right == null) {
-            erro("Esperava termo após operador " + op.getLexema());
-            return null;
+        ASTNode node = termo();
+        while (token != null && List.of("+", "-").contains(token.getLexema())) {
+            Token op = token;
+            avancaToken();
+            node = new BinOpNode(node, op.getLexema(), termo());
         }
-        node = new BinOpNode(node, op.getLexema(), right);
+        return node;
     }
-    return node;
-}
 
     private ASTNode termo() {
         ASTNode node = fator();
@@ -360,62 +355,36 @@ public class Parser {
 // }
 
     public ASTNode valor() {
-        if (token == null) return null;  // Verificação de segurança
+    if (token == null) return null;
 
-        // Caso 1: Identificador (variável ou chamada de função)
-        Token idToken = matchT("id");
-        System.out.println("Processando valor. Token atual: " + 
-                  (token != null ? token.getLexema() : "null"));
-        if (idToken == null) idToken = matchT("ID");
-    
-        if (idToken != null) {
-            // Guarda o lexema antes de avançar os tokens
-            String lexema = idToken.getLexema(); 
+    // Caso 1: Números
+    if (token.getTipo().equals("INTEGER") || token.getTipo().equals("DECIMAL")) {
+        Num num = new Num(token.getLexema(), token.getTipo());
+        avancaToken();
+        return num;
+    }
+
+    // Caso 2: Identificadores (variáveis ou funções)
+    if (token.getTipo().equals("ID")) {
+        String nome = token.getLexema();
+        avancaToken();
         
-            // Subcaso 1.1: Chamada de função (ex: "soma(2, 3)")
-            if (peek() != null && "(".equals(peek().getLexema())) {
-                avancaToken(); // Consome '('
-
-                List<ASTNode> args = argumentos();
-                if (args == null) return null; // Erro nos argumentos
-
-                if (!expect(")")) {  // Método auxiliar que mostra erro automaticamente
-                    return null;
-                }
-                return new CallExpr(lexema, args);
+        // Se tem parênteses, é chamada de função
+        if (token != null && token.getLexema().equals("(")) {
+            avancaToken(); // Consome "("
+            List<ASTNode> args = parseArgumentos();
+            if (!token.getLexema().equals(")")) {
+                erro("Esperado ')' após argumentos");
             }
-            // Subcaso 1.2: Variável simples (ex: ":x")
-            return new VarNode(lexema);
+            avancaToken(); // Consome ")"
+            return new CallExpr(nome, args);
         }
-
-        // Caso 2: Números e strings
-        Token numToken = matchT("INTEGER");
-        if (numToken != null) {
-            return new Num(numToken.getLexema(), "INTEGER");
-        }
-    
-        numToken = matchT("DECIMAL");
-        if (numToken != null) {
-            return new Num(numToken.getLexema(), "DECIMAL");
-        }
-    
-        Token strToken = matchT("STRING");
-        if (strToken != null) {
-            return new Str(strToken.getLexema());
-        }
-
-        
-
-        return null; // Token inválido
+        // Senão, é variável
+        return new VarNode(nome);
     }
 
-    private boolean expect(String lexema) {
-    if (matchL(lexema) == null) {
-        erro("Esperava: " + lexema);
-        return false;
-    }
-    return true;
-    }
+    return null;
+}
 
     public Token peek() {
         return token;  // Retorna o token atual sem consumir ele.
@@ -468,24 +437,13 @@ public class Parser {
     }
 
     public ASTNode chamadaFuncao() {
-        System.out.println("Verificando chamada de função...");
+        Token idToken = matchT("ID");
+        if (idToken == null || matchL("(") == null) return null;
     
-        Token idToken = matchT("id");
-        if (idToken == null) idToken = matchT("ID");
-        if (idToken == null || matchL("(") == null) {
-            return null; // Não é uma chamada de função
-        }
-
-        List<ASTNode> args = parametros(); // Agora retorna List<ASTNode>
-        if (args == null) {
-            return null; // Erro nos parâmetros
-        }
-
-        if (matchL(")") == null) {
-            erro("Esperava ')' ao final da chamada de função");
-            return null;
-        }
-
+        // Usa parseArgumentos() para argumentos
+        List<ASTNode> args = parseArgumentos();
+        if (matchL(")") == null) return null;
+    
         return new CallExpr(idToken.getLexema(), args);
     }
 
@@ -683,33 +641,134 @@ public List<CaseNode> processarCasos() {
     }
 
 
-    public void avancaToken() {
-        if (!tokens.isEmpty()) {
-            token = tokens.remove(0);  // Atualiza o token atual removendo o primeiro da lista
-        } else {
-            token = null;  // Caso não haja mais tokens, token se torna null
-        }
+    private void avancaToken() {
+    if (!tokens.isEmpty()) {
+        System.out.println("Consumindo token: " + token.getLexema()); // DEBUG
+        token = tokens.remove(0);
+    } else {
+        token = null;
     }
+}
 
     public Token matchL(String lexema) {
-        if (token != null && token.getLexema().equals(lexema)) {
-            Token consumido = token;
-            System.out.println("Consumindo token: " + token.getLexema());
-            avancaToken();
-            return consumido;
+    if (token != null && token.getLexema().equals(lexema)) {
+        Token t = token;
+        avancaToken(); // Avança apenas uma vez
+        return t;
+    }
+    return null;
+}
+
+public Token matchT(String tipo) {
+    if (token != null && token.getTipo().equals(tipo)) {
+        Token t = token;
+        avancaToken(); // Avança apenas uma vez
+        return t;
+    }
+    return null;
+}
+
+
+    public ASTNode comandoPrint() {
+    Token printToken = matchT("PRINT");
+    if (printToken == null) return null;
+    
+    // O lexema vem como ="conteúdo"
+    String conteudo = printToken.getLexema().substring(2, printToken.getLexema().length() - 1);
+    
+    // Se for string pura (entre aspas simples)
+    if (conteudo.startsWith("'") && conteudo.endsWith("'")) {
+        return new PrintNode(new Str(conteudo.substring(1, conteudo.length() - 1)));
+    }
+    
+    // Se tiver concatenação
+    return processarConcatencao(conteudo);
+}
+
+    private ASTNode processarConcatencao(String expressao) {
+        String[] partes = expressao.split("\\s*\\+\\s*");
+        if (partes.length == 0) return null;
+    
+        ASTNode resultado = criarNo(partes[0]);
+        for (int i = 1; i < partes.length; i++) {
+            resultado = new BinOpNode(resultado, "+", criarNo(partes[i]));
+        }
+        return resultado;
+    }
+
+    private ASTNode criarNo(String conteudo) {
+        if (conteudo.startsWith("'") && conteudo.endsWith("'")) {
+            return new Str(conteudo.substring(1, conteudo.length() - 1));
+        } else if (conteudo.startsWith(":")) {
+            return new VarNode(conteudo);
         }
         return null;
     }
 
-    public Token matchT(String tipo) {
-        if (token != null && token.getTipo().equals(tipo)) {
-            Token consumido = token;
-            System.out.println("Consumindo token: " + token.getLexema());
+    
+
+    
+
+
+    public ASTNode parseExpression() {
+        ASTNode node = parseTerm();
+    
+        while (token != null && (token.getLexema().equals("+") || token.getLexema().equals("-"))) {
+            String op = token.getLexema();
             avancaToken();
-            return consumido;
+            ASTNode right = parseTerm();
+            node = new BinOpNode(node, op, right);
         }
-        return null;
+    
+        return node;
     }
+
+    private ASTNode parseTerm() {
+        ASTNode node = parseFactor();
+    
+        while (token != null && (token.getLexema().equals("*") || token.getLexema().equals("/"))) {
+            String op = token.getLexema();
+            avancaToken();
+            ASTNode right = parseFactor();
+            node = new BinOpNode(node, op, right);
+        }
+    
+        return node;
+    }
+
+    private ASTNode parseFactor() {
+    if (token == null) return null;
+    
+    // Números inteiros ou decimais
+    if (token.getTipo().equals("INTEGER") || token.getTipo().equals("DECIMAL")) {
+        Num num = new Num(token.getLexema(), token.getTipo());
+        avancaToken();
+        return num;
+    }
+    
+    // Variáveis (começam com :)
+    if (token.getTipo().equals("ID") && token.getLexema().startsWith(":")) {
+        VarNode var = new VarNode(token.getLexema());
+        avancaToken();
+        return var;
+    }
+    
+    // Parênteses para agrupamento
+    if (token.getLexema().equals("(")) {
+        avancaToken();
+        ASTNode expr = parseExpression();
+        if (expr == null || !token.getLexema().equals(")")) {
+            erro("Esperado ')'");
+            return null;
+        }
+        avancaToken();
+        return expr;
+    }
+    
+    erro("Fator inválido: " + token.getLexema());
+    return null;
+}
+    
 
     public ASTNode chamadaFuncMat() {
         System.out.println("Verificando chamada de função matemática...");

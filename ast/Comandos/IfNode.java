@@ -1,6 +1,6 @@
 package Compilador.ast.Comandos;
 
-import Compilador.ast.ASTNode;
+import Compilador.ast.*;
 import java.util.List;
 
 public class IfNode extends ASTNode {
@@ -9,7 +9,8 @@ public class IfNode extends ASTNode {
     public final List<ElseIfNode> elseIfs;
     public final BlockNode elseBlock;
 
-    public IfNode(ASTNode condicao, BlockNode thenBlock, 
+    // Construtor da classe IfNode
+    public IfNode(ASTNode condicao, BlockNode thenBlock,
                  List<ElseIfNode> elseIfs, BlockNode elseBlock) {
         this.condicao = condicao;
         this.thenBlock = thenBlock;
@@ -18,20 +19,42 @@ public class IfNode extends ASTNode {
     }
 
     @Override
-    public String toString(int indent) {
+    public String toFormattedString(String indent, boolean isLast) {
         StringBuilder sb = new StringBuilder();
-        sb.append("  ".repeat(indent)).append("If\n")
-          .append(condicao.toString(indent + 1))
-          .append(thenBlock.toString(indent + 1));
         
-        for (ElseIfNode elif : elseIfs) {
-            sb.append(elif.toString(indent + 1));
+        // Cabeçalho do If
+        sb.append(indent).append(isLast ? "└── " : "├── ").append("If\n");
+        
+        String childIndent = indent + (isLast ? "    " : "│   ");
+        
+        // Condição
+        sb.append(childIndent).append("├── Condition:\n")
+          .append(condicao.toFormattedString(childIndent + "│   ", false));
+        
+        // Then
+        sb.append(childIndent).append("├── Then:\n")
+          .append(thenBlock.toFormattedString(childIndent + "│   ", elseIfs.isEmpty() && elseBlock == null));
+        
+        // ElseIfs
+        for (int i = 0; i < elseIfs.size(); i++) {
+            boolean isLastElseIf = (i == elseIfs.size() - 1) && elseBlock == null;
+            sb.append(childIndent)
+              .append(isLastElseIf ? "└── " : "├── ")
+              .append("ElseIf ").append(i + 1).append(":\n")
+              .append(elseIfs.get(i).toFormattedString(childIndent + (isLastElseIf ? "    " : "│   "), isLastElseIf));
         }
         
+        // Else block
         if (elseBlock != null) {
-            sb.append("  ".repeat(indent)).append("Else\n")
-              .append(elseBlock.toString(indent + 1));
+            sb.append(childIndent).append("└── Else:\n")
+              .append(elseBlock.toFormattedString(childIndent + "    ", true));
         }
+        
         return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return toFormattedString("", true); // Usar a versão formatada para consistência
     }
 }

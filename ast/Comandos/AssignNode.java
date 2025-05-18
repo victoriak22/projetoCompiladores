@@ -1,22 +1,37 @@
-// AssignNode.java
 package Compilador.ast.Comandos;
 
-import Compilador.ast.ASTNode;
-import Compilador.ast.Expressoes.Variaveis.VarNode;
+import Compilador.ast.*;
 
 public class AssignNode extends ASTNode {
-    public final VarNode variable;
-    public final ASTNode expression;
+    private final ASTNode lhs;
+    private final ASTNode rhs;
 
-    public AssignNode(VarNode variable, ASTNode expression) {
-        this.variable = variable;
-        this.expression = expression;
+    public AssignNode(ASTNode lhs, ASTNode rhs) {
+        this.lhs = lhs;
+        this.rhs = rhs;
     }
 
     @Override
-    public String toString(int indent) {
-        return "  ".repeat(indent) + "Assign\n" +
-               variable.toString(indent + 1) +
-               expression.toString(indent + 1);
+    public String toFormattedString(String indent, boolean isLast) {
+        StringBuilder sb = new StringBuilder();
+
+        // Cabeçalho do nó Assign
+        sb.append(indent).append(isLast ? "└── " : "├── ").append("Assign\n");
+        String childIndent = indent + (isLast ? "    " : "│   ");
+        
+        // Subnó LHS (left-hand side)
+        sb.append(childIndent).append("├── LHS:\n");
+        sb.append(lhs.toFormattedString(childIndent + "│   ", false));
+        
+        // Subnó RHS (right-hand side)
+        sb.append(childIndent).append("└── RHS:\n");
+        sb.append(rhs.toFormattedString(childIndent + "    ", true));
+        
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return toFormattedString("", true);
     }
 }

@@ -3,19 +3,28 @@ package Compilador.ast.Expressoes.Variaveis;
 import Compilador.ast.ASTNode;
 
 public class ParamNode extends ASTNode {
-    private final String nomeParametro;
+    private final String name;
 
-    public ParamNode(String nomeParametro) {
-        this.nomeParametro = nomeParametro;
+    public ParamNode(String name) {
+        this.name = name.startsWith(":") ? name.substring(1).trim() : name.trim();
     }
 
     @Override
-    public String toString(int indent) {
-        return "  ".repeat(indent) + "Param(" + nomeParametro + ")\n";
+    public String toFormattedString(String indent, boolean isLast) {
+        // Usando os conectores novos sem as constantes da superclasse
+        return indent + (isLast ? "└── " : "├── ") + "Param: " + name + "\n";
     }
 
-    // Getter (opcional, para uso futuro)
-    public String getNome() {
-        return nomeParametro;
+    @Override
+    public String toString() {
+        return toFormattedString("", true);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getOriginalName() {
+        return ":" + name;
     }
 }

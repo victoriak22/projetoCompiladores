@@ -1,4 +1,3 @@
-// Num.java
 package Compilador.ast.Expressoes;
 
 import Compilador.ast.ASTNode;
@@ -6,23 +5,42 @@ import Compilador.ast.ASTNode;
 public class Num extends ASTNode {
     public enum Tipo { INTEGER, DECIMAL }
     
-    public final String valor;
-    public final Tipo tipo;
+    private final String valor;
+    private final Tipo tipo;
 
-    // Construtor principal
     public Num(String valor, Tipo tipo) {
         this.valor = valor;
         this.tipo = tipo;
     }
 
-    // Construtor alternativo (para usar string)
     public Num(String valor, String tipoStr) {
         this.valor = valor;
         this.tipo = Tipo.valueOf(tipoStr.toUpperCase());
     }
 
     @Override
-    public String toString(int indent) {
-        return "  ".repeat(indent) + "Num(" + valor + " [" + tipo + "])\n";
+    public String toFormattedString(String indent, boolean isLast) {
+        return indent + (isLast ? "└── " : "├── ") + valor + "\n";
+    }
+
+    @Override
+    public String toString() {
+        return toFormattedString("", true);
+    }
+
+    public String getValor() {
+        return valor;
+    }
+
+    public Tipo getTipo() {
+        return tipo;
+    }
+
+    public boolean isInteger() {
+        return tipo == Tipo.INTEGER;
+    }
+
+    public boolean isDecimal() {
+        return tipo == Tipo.DECIMAL;
     }
 }

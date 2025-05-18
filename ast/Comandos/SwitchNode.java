@@ -15,20 +15,36 @@ public class SwitchNode extends ASTNode {
     }
 
     @Override
-    public String toString(int indent) {
+    public String toFormattedString(String indent, boolean isLast) {
         StringBuilder sb = new StringBuilder();
-        sb.append("  ".repeat(indent)).append("Switch\n")
-          .append("  ".repeat(indent+1)).append("Expressao:\n")
-          .append(expressao.toString(indent+2));
         
-        for (CaseNode caso : casos) {
-            sb.append(caso.toString(indent+1));
+        // Switch header
+        sb.append(indent).append(isLast ? "└── " : "├── ").append("Switch\n");
+        
+        // Expression
+        sb.append(indent).append("│   ").append("└── ").append("Expressao:\n")
+          .append(expressao.toFormattedString(indent + "    ", false));  // Indentation for child, not last
+        
+        // Cases
+        for (int i = 0; i < casos.size(); i++) {
+            boolean isLastCase = (i == casos.size() - 1) && (padrao == null);
+            sb.append(indent)
+              .append(isLastCase ? "└── " : "├── ")
+              .append("Case ").append(i + 1).append(":\n")
+              .append(casos.get(i).toFormattedString(indent + "    ", isLastCase));
         }
         
+        // Default case
         if (padrao != null) {
-            sb.append("  ".repeat(indent+1)).append("Padrao:\n")
-              .append(padrao.toString(indent+2));
+            sb.append(indent).append("└── ").append("Default:\n")
+              .append(padrao.toFormattedString(indent + "    ", true));
         }
+        
         return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return toFormattedString("", true);  // Use the root level (no indent) and mark it as the last node
     }
 }

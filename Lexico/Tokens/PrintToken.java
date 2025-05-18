@@ -1,43 +1,35 @@
-package Compilador;
+package Compilador.Lexico.Tokens;
 
 import java.text.CharacterIterator;
+import Compilador.Lexico.*;
 
 public class PrintToken extends AFD {
     @Override
     public Token evaluate(CharacterIterator code) {
-        if (code.current() != '=') {
-            return null;
-        }
-        code.next(); // Consome o '='
-        
-        // Verifica aspas duplas de abertura
-        if (code.current() != '"') {
-            throw new RuntimeException("Comando print deve começar com =\"");
-        }
-        code.next();
-        
-        StringBuilder content = new StringBuilder();
-        boolean inString = false;
-        
-        while (code.current() != '"' && code.current() != CharacterIterator.DONE) {
-            // Trata aspas simples internas
-            if (code.current() == '\'') {
-                inString = !inString;
-                code.next();
-                continue;
-            }
+        // Verifica o padrão =" para identificar PRINT
+        if (code.current() == '=') {
+            int startPos = code.getIndex();
+            code.next(); // Consome '='
             
-            // Adiciona conteúdo (incluindo identificadores como :var)
-            content.append(code.current());
-            code.next();
+            if (code.current() == '"') {
+                code.next(); // Consome '"'
+                StringBuilder content = new StringBuilder("=\"");
+                
+                // Coleta o conteúdo até a próxima aspas
+                while (code.current() != '"' && code.current() != CharacterIterator.DONE) {
+                    content.append(code.current());
+                    code.next();
+                }
+                
+                if (code.current() == '"') {
+                    content.append('"');
+                    code.next(); // Consome a aspas final
+                    return new Token("PRINT", content.toString());
+                }
+            }
+            // Se não fechou corretamente, volta ao início
+            code.setIndex(startPos);
         }
-        
-        // Verifica aspas duplas de fechamento
-        if (code.current() != '"') {
-            throw new RuntimeException("Aspa dupla não fechada no print");
-        }
-        code.next();
-        
-        return new Token("PRINT", content.toString().trim());
+        return null;
     }
 }

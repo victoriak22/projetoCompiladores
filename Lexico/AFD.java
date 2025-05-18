@@ -1,4 +1,4 @@
-package Compilador;
+package Compilador.Lexico;
 
 import java.text.CharacterIterator;
 

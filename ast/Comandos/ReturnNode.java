@@ -1,18 +1,27 @@
-// ReturnNode.java
 package Compilador.ast.Comandos;
 
-import Compilador.ast.ASTNode;
+import Compilador.ast.*;
 
 public class ReturnNode extends ASTNode {
-    public final ASTNode expressao;
+    private final ASTNode expression;
 
-    public ReturnNode(ASTNode expressao) {
-        this.expressao = expressao;
+    public ReturnNode(ASTNode expression) {
+        this.expression = expression;
     }
 
     @Override
-    public String toString(int indent) {
-        return "  ".repeat(indent) + "Return\n" + 
-               expressao.toString(indent + 1);
+    public String toFormattedString(String indent, boolean isLast) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(indent).append(isLast ? "└── " : "├── ").append("Return\n");
+        if (expression != null) {
+            sb.append(indent).append("    ├── Expression:\n")
+              .append(expression.toFormattedString(indent + "│   ", true));
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return toFormattedString("", true);
     }
 }

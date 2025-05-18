@@ -12,9 +12,27 @@ public class WhileLoopNode extends ASTNode {
     }
 
     @Override
-    public String toString(int indent) {
-        return "  ".repeat(indent) + "WhileLoop\n" +
-               condicao.toString(indent + 1) +
-               corpo.toString(indent + 1);
+    public String toFormattedString(String indent, boolean isLast) {
+        StringBuilder sb = new StringBuilder();
+
+        // Header do While
+        sb.append(indent).append(isLast ? "└── " : "├── ").append("WhileLoop\n");
+
+        String childIndent = indent + (isLast ? "    " : "│   ");
+
+        // Condição
+        sb.append(childIndent).append("├── Condition:\n");
+        sb.append(condicao.toFormattedString(childIndent + "│   ", false));
+
+        // Corpo
+        sb.append(childIndent).append("└── Body:\n");
+        sb.append(corpo.toFormattedString(childIndent + "    ", true));
+
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return toFormattedString("", true);
     }
 }
