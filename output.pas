@@ -1,18 +1,9 @@
 PROGRAM PsalmsProgram;
 
 VAR
-  resultadoMultiplicacao: Integer;
-  resultado: Integer;
-
-FUNCTION multiplicar(A: Integer; B: Integer): Integer;
-VAR
-  resultado: Integer;
-BEGIN
-  resultado := (A * B);
-  multiplicar := resultado;
-END;
+  inteiro: Integer;
 
 BEGIN
-  resultadoMultiplicacao := multiplicar(3, 4);
-  WriteLn('Resultado da multiplicação: ', resultadoMultiplicacao);
+  inteiro := 42;
+  WriteLn('Valor decimal: ');
 END.

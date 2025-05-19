@@ -261,14 +261,7 @@ public class PascalTranslator {
           Method getValor = Str.class.getMethod("getValor");
           String valor = (String) getValor.invoke(content);
 
-          // Verificar se a string termina com ":"; se sim, adicionar variável
-          if (valor.trim().endsWith(":") ||
-              valor.contains("multiplicação") ||
-              valor.toLowerCase().contains("resultado")) {
-            code.append("'").append(valor.replace("'", "''")).append("', resultadoMultiplicacao");
-          } else {
-            code.append("'").append(valor.replace("'", "''")).append("'");
-          }
+          code.append("'").append(valor.replace("'", "''")).append("'");
         } else if (content instanceof BinOpNode) {
           // Verificar se é concatenação
           Method getOpMethod = BinOpNode.class.getMethod("getOperator");
@@ -457,7 +450,9 @@ public class PascalTranslator {
 
         code.append(")");
       }
-    } catch (Exception e) {
+    } catch (
+
+    Exception e) {
       code.append(indentation).append("{ Erro: ").append(e.getMessage()).append(" }\n");
     }
   }

@@ -22,6 +22,7 @@ public class Lexer {
         afds.add(new CommentToken()); // Comentários devem vir primeiro
         afds.add(new PrintToken()); // Deve vir antes de outros tokens
         afds.add(new StringToken()); // Strings entre aspas simples
+        afds.add(new BooleanToken()); // Adicionado: valores booleanos
         afds.add(new ReservedWords());
         afds.add(new MathOperator()); // +, -, *, /
         afds.add(new RelationalOperator()); // ==, !=, etc
