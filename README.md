@@ -126,7 +126,8 @@ Para imprimir valores, use a sintaxe `=`:
 
 ```psalms
 ="'Texto a ser exibido'"
-="'Resultado: '" + :variavel
+="'Resultado: '"
+=":variavel"
 ```
 
 ---
@@ -165,7 +166,8 @@ Loop for:
 
 ```psalms
 loop(:i -> 0; :i < 5; :i -> :i + 1) {
-  ="'Valor de i: '" + :i
+  ="'Valor de i: '"
+  =":i"
 }
 ```
 
@@ -174,7 +176,8 @@ Loop while:
 ```psalms
 :contador -> 0
 enquanto(:contador < 5) {
-  ="'Contador: '" + :contador
+  ="'Contador: '"
+  =":contador"
   :contador -> :contador + 1
 }
 ```
@@ -204,10 +207,12 @@ escolha(:opcao) {
 ```psalms
 tente {
   :resultado -> :dividir(10, 0)
-  ="'Resultado: '" + :resultado
+  ="'Resultado: '"
+  =":resultado"
 }
 capturar(:erro){
-  ="'Ocorreu um erro: '" + :erro
+  ="'Ocorreu um erro: '"
+  =":erro"
   }
 ```
 
@@ -305,7 +310,8 @@ deus :multiplicar -> :A, :B {
 }
 
 :resultadoMultiplicacao -> :multiplicar(3, 4)
-="'Resultado da multiplicação: '" + :resultadoMultiplicacao
+="'Resultado da multiplicação: '"
+=":resultadoMultiplicacao"
 ```
 
 ### Exemplo 2: Loop com Condicional
@@ -319,9 +325,11 @@ deus :listarNumeros -> :limite {
   loop(:i -> 0; :i < :limite; :i -> :i + 1) {
     -- Verifica se o número é par ou ímpar
     se(:i % 2 == 0){
-      ="'Número par: '" + :i
+      ="'Número par: '"
+      =":i"
     senao{
-      ="'Número ímpar: '" + :i
+      ="'Número ímpar: '"
+      =":i"
     }
   }
 }
@@ -366,10 +374,14 @@ deus :calculadora -> :operacao, :a, :b{
 :resMultiplicacao -> :calculadora("multiplicacao", 10, 5)
 :resDivisao -> :calculadora("divisao", 10, 5)
 
-="'Soma: '" + :resSoma
-="'Subtração: '" + :resSubtracao
-="'Multiplicação: '" + :resMultiplicacao
-="'Divisão: '" + :resDivisao
+="'Soma: '"
+=":resSoma"
+="'Subtração: '"
+=":resSubtracao"
+="'Multiplicação: '"
+=":resMultiplicacao"
+="'Divisão: '"
+=":resDivisao"
 ```
 
 Para mais exemplos, consulte o arquivo `exemplos_psalms.psalms` incluído no projeto.
