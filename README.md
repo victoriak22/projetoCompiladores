@@ -136,21 +136,27 @@ Para imprimir valores, use a sintaxe `=`:
 ### Condicionais
 
 ```psalms
-se(:idade >= 18):
+se(:idade >= 18){
   ="'Maior de idade'"
-senao:
+senao{
   ="'Menor de idade'"
+  }
+}
 ```
 
 Com múltiplas condições:
 
 ```psalms
-se(:nota >= 7):
+se(:nota >= 7){
   ="'Aprovado'"
-senaose(:nota >= 5):
+
+senaose(:nota >= 5){
   ="'Recuperação'"
-senao:
+}
+senao{
   ="'Reprovado'"
+}
+}
 ```
 
 ### Loops
@@ -177,14 +183,17 @@ enquanto(:contador < 5) {
 
 ```psalms
 escolha(:opcao) {
-  caso 1:
+  caso 1{
     ="'Opção 1 selecionada'"
     parar
-  caso 2:
+  }
+  caso 2{
     ="'Opção 2 selecionada'"
     parar
-  padrao:
+  }
+  padrao{
     ="'Opção inválida'"
+  }
 }
 ```
 
@@ -197,8 +206,9 @@ tente {
   :resultado -> :dividir(10, 0)
   ="'Resultado: '" + :resultado
 }
-capturar(:erro):
+capturar(:erro){
   ="'Ocorreu um erro: '" + :erro
+  }
 ```
 
 ---
