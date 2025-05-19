@@ -125,9 +125,9 @@ deus :soma -> :a, :b {
 Para imprimir valores, use a sintaxe `=`:
 
 ```psalms
-="'Texto a ser exibido'"
-="'Resultado: '"
-=":variavel"
+p("Texto a ser exibido")
+p("Resultado: ")
+p(:variavel)
 ```
 
 ---
@@ -138,9 +138,9 @@ Para imprimir valores, use a sintaxe `=`:
 
 ```psalms
 se(:idade >= 18){
-  ="'Maior de idade'"
+  p("Maior de idade")
 senao{
-  ="'Menor de idade'"
+  p("Menor de idade")
   }
 }
 ```
@@ -149,13 +149,13 @@ Com múltiplas condições:
 
 ```psalms
 se(:nota >= 7){
-  ="'Aprovado'"
+  p("Aprovado")
 
 senaose(:nota >= 5){
-  ="'Recuperação'"
+  p("Recuperação")
 }
 senao{
-  ="'Reprovado'"
+  p("Reprovado")
 }
 }
 ```
@@ -166,8 +166,8 @@ Loop for:
 
 ```psalms
 loop(:i -> 0; :i < 5; :i -> :i + 1) {
-  ="'Valor de i: '"
-  =":i"
+  p("Valor de i: ")
+  p(":i")
 }
 ```
 
@@ -176,8 +176,8 @@ Loop while:
 ```psalms
 :contador -> 0
 enquanto(:contador < 5) {
-  ="'Contador: '"
-  =":contador"
+  p("Contador: ")
+  p(":contador")
   :contador -> :contador + 1
 }
 ```
@@ -187,15 +187,15 @@ enquanto(:contador < 5) {
 ```psalms
 escolha(:opcao) {
   caso 1{
-    ="'Opção 1 selecionada'"
+    p("Opção 1 selecionada")
     parar
   }
   caso 2{
-    ="'Opção 2 selecionada'"
+    p("Opção 2 selecionada")
     parar
   }
   padrao{
-    ="'Opção inválida'"
+    p("Opção inválida")
   }
 }
 ```
@@ -207,12 +207,12 @@ escolha(:opcao) {
 ```psalms
 tente {
   :resultado -> :dividir(10, 0)
-  ="'Resultado: '"
-  =":resultado"
+  p("Resultado: ")
+  p(":resultado")
 }
 capturar(:erro){
-  ="'Ocorreu um erro: '"
-  =":erro"
+  p("Ocorreu um erro: ")
+  p(":erro")
   }
 ```
 
