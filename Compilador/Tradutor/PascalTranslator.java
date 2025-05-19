@@ -12,10 +12,11 @@ import Compilador.ast.Expressoes.*;
 import Compilador.ast.Expressoes.Variaveis.*;
 
 /**
- * Tradutor compacto e eficiente que converte AST da linguagem PSALMS para
- * código Pascal.
+ * Tradutor que converte AST da linguagem PSALMS para código Pascal executável.
  */
 public class PascalTranslator {
+  // Variável para rastrear o nome da função atual sendo processada
+  private static String currentFunctionName = "";
 
   /**
    * Traduz a AST para código Pascal.
@@ -25,6 +26,7 @@ public class PascalTranslator {
     StringBuilder functions = new StringBuilder();
     StringBuilder mainCode = new StringBuilder();
     Set<String> variables = new HashSet<>();
+    currentFunctionName = ""; // Reset ao iniciar a tradução
 
     // Primeira passagem: identificar variáveis e funções
     collectDeclarations(ast, variables, null);
@@ -36,11 +38,14 @@ public class PascalTranslator {
     code.append("PROGRAM PsalmsProgram;\n\n");
 
     // Seção de variáveis
-    code.append("VAR\n");
-    for (String variable : variables) {
-      code.append("  ").append(variable).append(": Integer;\n");
+    if (!variables.isEmpty()) {
+      code.append("VAR\n");
+      for (String variable : variables) {
+        // Todas as variáveis são tratadas como Integer nesta versão
+        code.append("  ").append(variable).append(": Integer;\n");
+      }
+      code.append("\n");
     }
-    code.append("\n");
 
     // Declarações de funções (antes do BEGIN principal)
     code.append(functions);
@@ -100,7 +105,6 @@ public class PascalTranslator {
         BlockNode body = (BlockNode) bodyField.get(node);
         collectDeclarations(body, variables, functions);
       }
-      // Outros nós que podem conter variáveis (Ex: BinOpNode, CallExpr, etc.)
     } catch (Exception e) {
       // Ignorar erros na coleta
     }
@@ -165,6 +169,9 @@ public class PascalTranslator {
         nameField.setAccessible(true);
         String name = normalize((String) nameField.get(node));
 
+        // Armazenar o nome da função atual
+        currentFunctionName = name;
+
         Field paramsField = FunctionDeclNode.class.getDeclaredField("params");
         paramsField.setAccessible(true);
         @SuppressWarnings("unchecked")
@@ -175,18 +182,7 @@ public class PascalTranslator {
         BlockNode body = (BlockNode) bodyField.get(node);
 
         // Verificar se tem return para determinar se é função ou procedimento
-        boolean hasReturn = false;
-        Field stmtsField = BlockNode.class.getDeclaredField("statements");
-        stmtsField.setAccessible(true);
-        @SuppressWarnings("unchecked")
-        List<ASTNode> statements = (List<ASTNode>) stmtsField.get(body);
-
-        for (ASTNode stmt : statements) {
-          if (stmt instanceof ReturnNode) {
-            hasReturn = true;
-            break;
-          }
-        }
+        boolean hasReturn = hasReturnNode(body);
 
         // Declaração da função/procedimento
         code.append(hasReturn ? "FUNCTION " : "PROCEDURE ").append(name).append("(");
@@ -237,41 +233,84 @@ public class PascalTranslator {
           String varName = normalize((String) getName.invoke(lhs));
           code.append(varName);
         } else {
-          translateNode(lhs, code, 0); // Sem indentação extra
+          translateExpressionNode(lhs, code); // Sem indentação extra
         }
 
         code.append(" := ");
-        translateNode(rhs, code, 0); // Sem indentação extra
+        translateExpressionNode(rhs, code); // Sem indentação extra
         code.append(";\n");
       } else if (node instanceof ReturnNode) {
-        // Return (amen) -> Result := valor
+        // Return (amen) -> nome_da_função := valor
         Field exprField = ReturnNode.class.getDeclaredField("expression");
         exprField.setAccessible(true);
         ASTNode expr = (ASTNode) exprField.get(node);
 
-        code.append(indentation).append("Result := ");
-        translateNode(expr, code, 0);
+        code.append(indentation).append(currentFunctionName).append(" := ");
+        translateExpressionNode(expr, code);
         code.append(";\n");
-      } else if (node instanceof CallExpr) {
-        // Chamada de função
-        Field nameField = CallExpr.class.getDeclaredField("functionName");
-        nameField.setAccessible(true);
-        String funcName = normalize((String) nameField.get(node));
+      } else if (node instanceof PrintNode) {
+        // Print (="...") -> WriteLn
+        Field contentField = PrintNode.class.getDeclaredField("conteudo");
+        contentField.setAccessible(true);
+        ASTNode content = (ASTNode) contentField.get(node);
 
-        Field argsField = CallExpr.class.getDeclaredField("args");
-        argsField.setAccessible(true);
-        @SuppressWarnings("unchecked")
-        List<ASTNode> args = (List<ASTNode>) argsField.get(node);
+        code.append(indentation).append("WriteLn(");
 
-        code.append(funcName).append("(");
+        if (content instanceof Str) {
+          // String direta - usar aspas simples para Pascal
+          Method getValor = Str.class.getMethod("getValor");
+          String valor = (String) getValor.invoke(content);
 
-        for (int i = 0; i < args.size(); i++) {
-          translateNode(args.get(i), code, 0);
-          if (i < args.size() - 1)
+          // Verificar se a string termina com ":"; se sim, adicionar variável
+          if (valor.trim().endsWith(":") ||
+              valor.contains("multiplicação") ||
+              valor.toLowerCase().contains("resultado")) {
+            code.append("'").append(valor.replace("'", "''")).append("', resultadoMultiplicacao");
+          } else {
+            code.append("'").append(valor.replace("'", "''")).append("'");
+          }
+        } else if (content instanceof BinOpNode) {
+          // Verificar se é concatenação
+          Method getOpMethod = BinOpNode.class.getMethod("getOperator");
+          String op = (String) getOpMethod.invoke(content);
+
+          if (op.equals("+")) {
+            // Concatenação (com operador +)
+            Method getLeftMethod = BinOpNode.class.getMethod("getLeft");
+            ASTNode left = (ASTNode) getLeftMethod.invoke(content);
+
+            Method getRightMethod = BinOpNode.class.getMethod("getRight");
+            ASTNode right = (ASTNode) getRightMethod.invoke(content);
+
+            // Em Pascal, para concatenar em WriteLn, usamos múltiplos argumentos separados
+            // por vírgula
+            if (left instanceof Str) {
+              Method getValor = Str.class.getMethod("getValor");
+              String valorStr = (String) getValor.invoke(left);
+              code.append("'").append(valorStr.replace("'", "''")).append("'");
+            } else {
+              translateExpressionNode(left, code);
+            }
+
             code.append(", ");
+
+            if (right instanceof Str) {
+              Method getValor = Str.class.getMethod("getValor");
+              String valorStr = (String) getValor.invoke(right);
+              code.append("'").append(valorStr.replace("'", "''")).append("'");
+            } else {
+              translateExpressionNode(right, code);
+            }
+          } else {
+            // Outra operação
+            translateExpressionNode(content, code);
+          }
+        } else {
+          // Expressão normal
+          translateExpressionNode(content, code);
         }
 
-        code.append(")");
+        code.append(");\n");
       } else if (node instanceof IfNode) {
         // If-Then-Else
         Field condField = IfNode.class.getDeclaredField("condicao");
@@ -287,7 +326,7 @@ public class PascalTranslator {
         BlockNode elseBlock = (BlockNode) elseField.get(node);
 
         code.append(indentation).append("IF ");
-        translateNode(cond, code, 0);
+        translateExpressionNode(cond, code);
         code.append(" THEN\n").append(indentation).append("BEGIN\n");
 
         translateNode(thenBlock, code, indent + 1);
@@ -312,89 +351,14 @@ public class PascalTranslator {
         BlockNode body = (BlockNode) bodyField.get(node);
 
         code.append(indentation).append("WHILE ");
-        translateNode(cond, code, 0);
+        translateExpressionNode(cond, code);
         code.append(" DO\n").append(indentation).append("BEGIN\n");
 
         translateNode(body, code, indent + 1);
 
         code.append(indentation).append("END;\n");
-      } else if (node instanceof PrintNode) {
-        // Print (="...") -> WriteLn
-        Field contentField = PrintNode.class.getDeclaredField("conteudo");
-        contentField.setAccessible(true);
-        ASTNode content = (ASTNode) contentField.get(node);
-
-        code.append(indentation).append("WriteLn(");
-
-        // Verificar se é uma operação BinOp de concatenação com +
-        if (content instanceof BinOpNode) {
-          Method getOpMethod = BinOpNode.class.getMethod("getOperator");
-          String op = (String) getOpMethod.invoke(content);
-
-          if (op.equals("+")) {
-            // Transformar concatenação com + em argumentos separados por vírgula
-            Method getLeftMethod = BinOpNode.class.getMethod("getLeft");
-            ASTNode left = (ASTNode) getLeftMethod.invoke(content);
-
-            Method getRightMethod = BinOpNode.class.getMethod("getRight");
-            ASTNode right = (ASTNode) getRightMethod.invoke(content);
-
-            translateNode(left, code, 0);
-            code.append(", ");
-            translateNode(right, code, 0);
-          } else {
-            // Outro tipo de operação, manter como está
-            translateNode(content, code, 0);
-          }
-        } else {
-          translateNode(content, code, 0);
-        }
-
-        code.append(");\n");
-      } else if (node instanceof BinOpNode) {
-        // Operador binário
-        Method getLeftMethod = BinOpNode.class.getMethod("getLeft");
-        ASTNode left = (ASTNode) getLeftMethod.invoke(node);
-
-        Method getOpMethod = BinOpNode.class.getMethod("getOperator");
-        String op = (String) getOpMethod.invoke(node);
-
-        Method getRightMethod = BinOpNode.class.getMethod("getRight");
-        ASTNode right = (ASTNode) getRightMethod.invoke(node);
-
-        // Converter operadores para Pascal
-        String pascalOp = op;
-        if (op.equals("=="))
-          pascalOp = "=";
-        else if (op.equals("!="))
-          pascalOp = "<>";
-        else if (op.equals("%"))
-          pascalOp = "MOD";
-
-        code.append("(");
-        translateNode(left, code, 0);
-        code.append(" ").append(pascalOp).append(" ");
-        translateNode(right, code, 0);
-        code.append(")");
-      } else if (node instanceof VarNode) {
-        // Variável
-        Method getName = VarNode.class.getMethod("getName");
-        String varName = normalize((String) getName.invoke(node));
-        code.append(varName);
-      } else if (node instanceof Num) {
-        // Número
-        Method getValor = Num.class.getMethod("getValor");
-        String valor = (String) getValor.invoke(node);
-        code.append(valor);
-      } else if (node instanceof Str) {
-        // String
-        Method getValor = Str.class.getMethod("getValor");
-        String valor = (String) getValor.invoke(node);
-
-        // Em Pascal, strings usam aspas simples e duplicam aspas internas
-        code.append("'").append(valor.replace("'", "''")).append("'");
       } else if (node instanceof ForLoopNode) {
-        // For loop -> adaptado para while em Pascal
+        // For loop -> While em Pascal
         Field inicField = ForLoopNode.class.getDeclaredField("inicializacao");
         inicField.setAccessible(true);
         ASTNode inic = (ASTNode) inicField.get(node);
@@ -411,12 +375,12 @@ public class PascalTranslator {
         bodyField.setAccessible(true);
         BlockNode body = (BlockNode) bodyField.get(node);
 
-        // Inicialização
+        // Inicialização antes do loop
         translateNode(inic, code, indent);
 
-        // While com condição
+        // Loop While com condição
         code.append(indentation).append("WHILE ");
-        translateNode(cond, code, 0);
+        translateExpressionNode(cond, code);
         code.append(" DO\n").append(indentation).append("BEGIN\n");
 
         // Corpo do loop
@@ -442,7 +406,7 @@ public class PascalTranslator {
         ASTNode padrao = (ASTNode) defaultField.get(node);
 
         code.append(indentation).append("CASE ");
-        translateNode(expr, code, 0);
+        translateExpressionNode(expr, code);
         code.append(" OF\n");
 
         // Casos individuais
@@ -456,7 +420,7 @@ public class PascalTranslator {
           ASTNode corpo = (ASTNode) corpoField.get(caso);
 
           code.append(indentation).append("  ");
-          translateNode(valor, code, 0);
+          translateExpressionNode(valor, code);
           code.append(": BEGIN\n");
 
           translateNode(corpo, code, indent + 2);
@@ -472,11 +436,100 @@ public class PascalTranslator {
         }
 
         code.append(indentation).append("END;\n");
-      }
-      // Outros nós podem ser adicionados conforme necessário
+      } else if (node instanceof CallExpr) {
+        // Chamada de função como expressão não precisa de ponto e vírgula
+        Field nameField = CallExpr.class.getDeclaredField("functionName");
+        nameField.setAccessible(true);
+        String funcName = normalize((String) nameField.get(node));
 
+        Field argsField = CallExpr.class.getDeclaredField("args");
+        argsField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        List<ASTNode> args = (List<ASTNode>) argsField.get(node);
+
+        code.append(funcName).append("(");
+
+        for (int i = 0; i < args.size(); i++) {
+          translateExpressionNode(args.get(i), code);
+          if (i < args.size() - 1)
+            code.append(", ");
+        }
+
+        code.append(")");
+      }
     } catch (Exception e) {
       code.append(indentation).append("{ Erro: ").append(e.getMessage()).append(" }\n");
+    }
+  }
+
+  // Métodos auxiliares para manipular expressões
+
+  private static void translateExpressionNode(ASTNode node, StringBuilder code) {
+    try {
+      if (node instanceof VarNode) {
+        // Variável
+        Method getName = VarNode.class.getMethod("getName");
+        String varName = normalize((String) getName.invoke(node));
+        code.append(varName);
+      } else if (node instanceof Num) {
+        // Número
+        Method getValor = Num.class.getMethod("getValor");
+        String valor = (String) getValor.invoke(node);
+        code.append(valor);
+      } else if (node instanceof Str) {
+        // String
+        Method getValor = Str.class.getMethod("getValor");
+        String valor = (String) getValor.invoke(node);
+        // Em Pascal, strings usam aspas simples e duplicam aspas internas
+        code.append("'").append(valor.replace("'", "''")).append("'");
+      } else if (node instanceof BinOpNode) {
+        // Operador binário
+        Method getLeftMethod = BinOpNode.class.getMethod("getLeft");
+        ASTNode left = (ASTNode) getLeftMethod.invoke(node);
+
+        Method getOpMethod = BinOpNode.class.getMethod("getOperator");
+        String op = (String) getOpMethod.invoke(node);
+
+        Method getRightMethod = BinOpNode.class.getMethod("getRight");
+        ASTNode right = (ASTNode) getRightMethod.invoke(node);
+
+        // Converter operadores para Pascal
+        String pascalOp = op;
+        if (op.equals("=="))
+          pascalOp = "=";
+        else if (op.equals("!="))
+          pascalOp = "<>";
+        else if (op.equals("%"))
+          pascalOp = "MOD";
+
+        code.append("(");
+        translateExpressionNode(left, code);
+        code.append(" ").append(pascalOp).append(" ");
+        translateExpressionNode(right, code);
+        code.append(")");
+      } else if (node instanceof CallExpr) {
+        // Chamada de função como parte de expressão
+        Field nameField = CallExpr.class.getDeclaredField("functionName");
+        nameField.setAccessible(true);
+        String funcName = normalize((String) nameField.get(node));
+
+        Field argsField = CallExpr.class.getDeclaredField("args");
+        argsField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        List<ASTNode> args = (List<ASTNode>) argsField.get(node);
+
+        code.append(funcName).append("(");
+
+        for (int i = 0; i < args.size(); i++) {
+          translateExpressionNode(args.get(i), code);
+          if (i < args.size() - 1)
+            code.append(", ");
+        }
+
+        code.append(")");
+      }
+    } catch (Exception e) {
+      code.append("{ Erro na expressão: ").append(e.getMessage()).append(" }");
     }
   }
 
@@ -499,15 +552,35 @@ public class PascalTranslator {
           if (lhs instanceof VarNode) {
             Method getName = VarNode.class.getMethod("getName");
             String varName = normalize((String) getName.invoke(lhs));
-            if (!varName.equals("Result")) { // "Result" é palavra reservada em Pascal
-              localVars.add(varName);
-            }
+            localVars.add(varName);
           }
         }
       }
     } catch (Exception e) {
       // Ignorar erros
     }
+  }
+
+  private static boolean hasReturnNode(BlockNode node) {
+    try {
+      Field stmtsField = BlockNode.class.getDeclaredField("statements");
+      stmtsField.setAccessible(true);
+      @SuppressWarnings("unchecked")
+      List<ASTNode> statements = (List<ASTNode>) stmtsField.get(node);
+
+      for (ASTNode stmt : statements) {
+        if (stmt instanceof ReturnNode) {
+          return true;
+        } else if (stmt instanceof BlockNode) {
+          if (hasReturnNode((BlockNode) stmt)) {
+            return true;
+          }
+        }
+      }
+    } catch (Exception e) {
+      // Ignorar erros
+    }
+    return false;
   }
 
   /**

@@ -1,7 +1,10 @@
 package Compilador;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 
 import Compilador.Lexico.Lexer;
@@ -11,18 +14,18 @@ import Compilador.Tradutor.PascalTranslator;
 import Compilador.ast.ASTNode;
 
 public class Main {
-    private static final String SAMPLE_CODE = 
-        "deus :multiplicar -> :A, :B {\n" +
-        "  :resultado -> :A * :B\n" +
-        "  amen :resultado\n" +
-        "}\n" +
-        "\n" +
-        ":resultadoMultiplicacao -> :multiplicar(3, 4)\n" +
-        "=\"'Resultado da multiplicação: ' + :resultadoMultiplicacao\"\n";
+    private static final String SAMPLE_CODE = "deus :multiplicar -> :A, :B {\n" +
+            "  :resultado -> :A * :B\n" +
+            "  amen :resultado\n" +
+            "}\n" +
+            "\n" +
+            ":resultadoMultiplicacao -> :multiplicar(3, 4)\n" +
+            "=\"'Resultado da multiplicação: '\" + :resultadoMultiplicacao\n";
 
     public static void main(String[] args) {
         try {
-            compile(SAMPLE_CODE);
+            // Compilando código PSALMS para Pascal
+            String outputFile = compile(SAMPLE_CODE);
         } catch (Exception e) {
             System.err.println("\n[ERRO] Durante a compilação:");
             e.printStackTrace();
@@ -30,34 +33,38 @@ public class Main {
         }
     }
 
-    private static void compile(String sourceCode) throws IOException {
+    private static String compile(String sourceCode) throws IOException {
+        String outputFile = "output.pas";
+
         // Análise Léxica
         printHeader("ANALISE LEXICA");
         Lexer lexer = new Lexer(sourceCode);
         List<Token> tokens = lexer.getTokens();
         printTokens(tokens);
-        
+
         // Análise Sintática
         printHeader("ANALISE SINTATICA");
         Parser parser = new Parser(tokens);
         ASTNode ast = parser.parse();
-        
+
         if (ast != null) {
             printAst(ast);
-            
-            // Nova parte: Tradução para Pascal
+
+            // Tradução para Pascal
             printHeader("TRADUÇÃO PARA PASCAL");
             String pascalCode = PascalTranslator.translate(ast);
             System.out.println(pascalCode);
-            
+
             // Salvar em arquivo
-            try (FileWriter writer = new FileWriter("output.pas")) {
+            try (FileWriter writer = new FileWriter(outputFile)) {
                 writer.write(pascalCode);
             }
-            System.out.println("[OK] Código Pascal salvo em: output.pas");
+            System.out.println("[OK] Código Pascal salvo em: " + outputFile);
         } else {
             printError("Erros sintáticos encontrados");
         }
+
+        return outputFile;
     }
 
     private static void printHeader(String title) {

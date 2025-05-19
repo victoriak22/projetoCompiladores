@@ -9,9 +9,10 @@ VAR
   resultado: Integer;
 BEGIN
   resultado := (A * B);
-  Result := resultado;
+  multiplicar := resultado;
 END;
 
 BEGIN
   resultadoMultiplicacao := multiplicar(3, 4);
-('Resultado da multiplicação: ' + resultadoMultiplicacao)END.
+  WriteLn('Resultado da multiplicação: ', resultadoMultiplicacao);
+END.
