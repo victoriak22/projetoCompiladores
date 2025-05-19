@@ -1,16 +1,37 @@
--- Teste de entrada do usuário
+-- Programa simples com entrada, loop e condicionais em PSALMS
+-- Usando a nova sintaxe p() para impressão
+
 :nome -> ''
 :idade -> 0
 
+-- Solicitação de dados ao usuário
 p("Digite seu nome:")
 $ler(:nome)
 
 p("Digite sua idade:")
 $ler(:idade)
 
+-- Saudação e exibição das informações
 p("Olá!")
-p("Seu nome eh:")
+p("Seu nome é:")
 p(:nome)
-p("Sua idade eh:")
+p("Sua idade é:")
 p(:idade)
 p("Anos")
+
+-- Verifica a idade com condicional
+se(:idade >= 18) {
+    p("Você é maior de idade.")
+} senao {
+    p("Você é menor de idade.")
+}
+
+-- Loop para contar até 5
+p("Contagem até 5:")
+:contador -> 1
+enquanto(:contador <= 5) {
+    p(:contador)
+    :contador -> :contador + 1
+}
+
+p("Fim do programa!")
