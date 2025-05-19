@@ -206,58 +206,80 @@ capturar(:erro):
 ## 📑 Gramática da Linguagem PSALMS
 
 ```bnf
+Programa → ListaComandos
+
 ListaComandos → Comando ListaComandos | ε
 
 Comando → Declaracao
         | Atribuicao
-        | EstruturaCondicional
+        | EstruturaCondicionalSimples
+        | EstruturaCondicionalBloco
         | EstruturaLoop
         | EstruturaEscolha
+        | ComandoRetorno
+        | Impressao
         | TratamentoErros
         | ChamadaFuncao
         | Comentario
+        | ComandoParar
 
 Comentario → "--" texto
 
-Declaracao → deus identificador -> Parametros { ListaComandos }
+Declaracao → deus :identificador -> ListaParametros { ListaComandos }
 
-Parametros → identificador
-           | identificador , Parametros
-           | ε
+ListaParametros → :identificador | :identificador , ListaParametros | ε
 
 Atribuicao → :identificador -> Expressao
-           | este.identificador -> Expressao
+
+ComandoRetorno → amen Expressao
+
+ComandoParar → parar
+
+Impressao → = Expressao
 
 Expressao → Valor
-          | Expressao operador Expressao
+          | Expressao OperadorAritmetico Expressao
+          | Expressao OperadorRelacional Expressao
+          | Expressao OperadorLogico Expressao
+          | ( Expressao )
           | ChamadaFuncao
+
+OperadorAritmetico → + | - | * | / | %
+OperadorRelacional → == | != | > | < | >= | <=
+OperadorLogico → && | || | !
 
 Valor → literal_numerico
       | literal_texto
-      | identificador
+      | :identificador
       | luz
       | trevas
       | nulo
 
-ChamadaFuncao → identificador ( Parametros )
+ChamadaFuncao → :identificador ( ArgumentosFuncao )
+ArgumentosFuncao → ListaArgumentos | ε
+ListaArgumentos → Expressao | Expressao , ListaArgumentos
 
-EstruturaCondicional → se (Expressao): ListaComandos
-                     | senaose (Expressao): ListaComandos
-                     | senao: ListaComandos
+EstruturaCondicionalSimples → se ( Expressao ) : Comando
+EstruturaCondicionalBloco → se ( Expressao ) : { ListaComandos }
 
-EstruturaLoop → loop (Atribuicao ; Expressao ; Atribuicao) { ListaComandos }
-              | enquanto (Expressao) { ListaComandos }
+SenaoSe → senaose ( Expressao ) : Comando
+        | senaose ( Expressao ) : { ListaComandos }
 
-EstruturaEscolha → escolha (Expressao) {
-                     Casos padrao
+Senao → senao : Comando
+      | senao : { ListaComandos }
+
+EstruturaLoop → loop ( Atribuicao ; Expressao ; Atribuicao ) { ListaComandos }
+              | enquanto ( Expressao ) { ListaComandos }
+
+EstruturaEscolha → escolha ( Expressao ) {
+                     ListaCasos
+                     CasoPadrao
                    }
 
-Casos → caso Valor : ListaComandos Casos
-      | ε
+ListaCasos → caso Valor : ListaComandos ListaCasos | ε
+CasoPadrao → padrao : ListaComandos | ε
 
-padrao → padrao : ListaComandos
-
-TratamentoErros → tente { ListaComandos } capturar (identificador): ListaComandos
+TratamentoErros → tente { ListaComandos } capturar ( :identificador ) : ListaComandos
 ```
 
 ---
