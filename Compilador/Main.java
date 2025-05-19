@@ -1,8 +1,5 @@
 package Compilador;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,7 +32,7 @@ public class Main {
             String sourceCode = readSourceFile(INPUT_FILE);
 
             // Compila o código PSALMS para Pascal
-            String outputFile = compile(sourceCode);
+            compile(sourceCode);
 
             System.out.println("[INFO] Compilação concluída com sucesso!");
         } catch (Exception e) {

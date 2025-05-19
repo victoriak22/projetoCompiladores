@@ -1,4 +1,35 @@
-# 📖 Bem-vindo ao Compilador da Linguagem PSALMS! 🇧🇷
+# 📖 Compilador da Linguagem PSALMS 🇧🇷
+
+## Índice de Navegação
+
+- [📖 Introdução](#-introdução)
+- [✝️ Palavras Reservadas](#️-palavras-reservadas-java--psalms)
+- [🛠 Como Funciona o Compilador](#-como-funciona-o-compilador-psalms)
+- [📝 Sintaxe Básica](#-sintaxe-básica-da-linguagem-psalms)
+  - [Comentários](#comentários)
+  - [Variáveis](#variáveis)
+  - [Funções](#funções)
+  - [Chamada de Funções](#chamada-de-funções)
+  - [Impressão](#impressão)
+- [🔄 Estruturas de Controle](#-estruturas-de-controle)
+  - [Condicionais](#condicionais)
+  - [Loops](#loops)
+  - [Estrutura Escolha-Caso](#estrutura-escolha-caso)
+- [⚠️ Tratamento de Exceções](#️-tratamento-de-exceções)
+- [📑 Gramática da Linguagem](#-gramática-da-linguagem-psalms)
+- [💻 Exemplos Completos](#-exemplos-completos)
+  - [Exemplo 1: Função de Multiplicação](#exemplo-1-função-simples-de-multiplicação)
+  - [Exemplo 2: Loop com Condicional](#exemplo-2-loop-com-condicional)
+  - [Exemplo 3: Calculadora Simples](#exemplo-3-calculadora-simples)
+- [🚀 Como Usar o Compilador](#-como-usar-o-compilador)
+- [📚 Operadores Suportados](#-operadores-suportados)
+  - [Aritméticos](#aritméticos)
+  - [Relacionais](#relacionais)
+  - [Lógicos](#lógicos)
+
+---
+
+## 📖 Introdução
 
 O **Compilador PSALMS** é um projeto educacional que realiza a **análise léxica, sintática e semântica** de uma linguagem de programação simbólica inspirada em conceitos cristãos e com palavras em português. Ele transforma o código PSALMS em uma representação intermediária que poderia ser interpretada ou traduzida para outra linguagem de mais baixo nível como Pascal. Essa abordagem permite estudar conceitos fundamentais de compiladores de forma acessível para falantes de português. 🌍💻
 
@@ -45,7 +76,7 @@ A linguagem **PSALMS** foi projetada com uma forte influência de palavras que f
 
 ## 🛠 Como Funciona o Compilador PSALMS?
 
-O compilador PSALMS realiza um processo em três fases:
+O compilador PSALMS realiza um processo em quatro fases:
 
 1. **Análise Léxica**: Tokenização de palavras reservadas, identificadores, operadores e literais.
 2. **Análise Sintática**: Verificação da estrutura gramatical e construção da AST (Árvore Sintática Abstrata).
