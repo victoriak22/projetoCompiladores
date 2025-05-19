@@ -126,7 +126,8 @@ Para imprimir valores, use a sintaxe `=`:
 
 ```psalms
 ="'Texto a ser exibido'"
-="'Resultado: '" + :variavel
+="'Resultado: '"
+=":variavel"
 ```
 
 ---
@@ -136,21 +137,27 @@ Para imprimir valores, use a sintaxe `=`:
 ### Condicionais
 
 ```psalms
-se(:idade >= 18):
+se(:idade >= 18){
   ="'Maior de idade'"
-senao:
+senao{
   ="'Menor de idade'"
+  }
+}
 ```
 
 Com múltiplas condições:
 
 ```psalms
-se(:nota >= 7):
+se(:nota >= 7){
   ="'Aprovado'"
-senaose(:nota >= 5):
+
+senaose(:nota >= 5){
   ="'Recuperação'"
-senao:
+}
+senao{
   ="'Reprovado'"
+}
+}
 ```
 
 ### Loops
@@ -159,7 +166,8 @@ Loop for:
 
 ```psalms
 loop(:i -> 0; :i < 5; :i -> :i + 1) {
-  ="'Valor de i: '" + :i
+  ="'Valor de i: '"
+  =":i"
 }
 ```
 
@@ -168,7 +176,8 @@ Loop while:
 ```psalms
 :contador -> 0
 enquanto(:contador < 5) {
-  ="'Contador: '" + :contador
+  ="'Contador: '"
+  =":contador"
   :contador -> :contador + 1
 }
 ```
@@ -177,14 +186,17 @@ enquanto(:contador < 5) {
 
 ```psalms
 escolha(:opcao) {
-  caso 1:
+  caso 1{
     ="'Opção 1 selecionada'"
     parar
-  caso 2:
+  }
+  caso 2{
     ="'Opção 2 selecionada'"
     parar
-  padrao:
+  }
+  padrao{
     ="'Opção inválida'"
+  }
 }
 ```
 
@@ -195,10 +207,13 @@ escolha(:opcao) {
 ```psalms
 tente {
   :resultado -> :dividir(10, 0)
-  ="'Resultado: '" + :resultado
+  ="'Resultado: '"
+  =":resultado"
 }
-capturar(:erro):
-  ="'Ocorreu um erro: '" + :erro
+capturar(:erro){
+  ="'Ocorreu um erro: '"
+  =":erro"
+  }
 ```
 
 ---
@@ -295,7 +310,8 @@ deus :multiplicar -> :A, :B {
 }
 
 :resultadoMultiplicacao -> :multiplicar(3, 4)
-="'Resultado da multiplicação: '" + :resultadoMultiplicacao
+="'Resultado da multiplicação: '"
+=":resultadoMultiplicacao"
 ```
 
 ### Exemplo 2: Loop com Condicional
@@ -308,11 +324,15 @@ deus :listarNumeros -> :limite {
   -- Loop que vai de 0 até o limite
   loop(:i -> 0; :i < :limite; :i -> :i + 1) {
     -- Verifica se o número é par ou ímpar
-    se(:i % 2 == 0):
-      ="'Número par: '" + :i
-    senao:
-      ="'Número ímpar: '" + :i
+    se(:i % 2 == 0){
+      ="'Número par: '"
+      =":i"
+    senao{
+      ="'Número ímpar: '"
+      =":i"
+    }
   }
+}
 
   amen :limite
 }
@@ -324,20 +344,28 @@ deus :listarNumeros -> :limite {
 ### Exemplo 3: Calculadora Simples
 
 ```psalms
-deus :calculadora -> :operacao, :a, :b {
-  escolha(:operacao) {
-    caso "soma":
+deus :calculadora -> :operacao, :a, :b{
+  escolha(:operacao){
+    caso "soma"{
       amen :a + :b
-    caso "subtracao":
+    }
+    caso "subtracao"{
       amen :a - :b
-    caso "multiplicacao":
+    }
+    caso "multiplicacao"{
       amen :a * :b
-    caso "divisao":
-      se(:b == 0):
+    }
+    caso "divisao"{
+      se(:b == 0){
         amen "Erro: Divisão por zero"
-      amen :a / :b
-    padrao:
+      }
+      senao{
+        amen :a / :b
+      }
+    }
+    padrao{
       amen "Operação inválida"
+    }
   }
 }
 
@@ -346,10 +374,14 @@ deus :calculadora -> :operacao, :a, :b {
 :resMultiplicacao -> :calculadora("multiplicacao", 10, 5)
 :resDivisao -> :calculadora("divisao", 10, 5)
 
-="'Soma: '" + :resSoma
-="'Subtração: '" + :resSubtracao
-="'Multiplicação: '" + :resMultiplicacao
-="'Divisão: '" + :resDivisao
+="'Soma: '"
+=":resSoma"
+="'Subtração: '"
+=":resSubtracao"
+="'Multiplicação: '"
+=":resMultiplicacao"
+="'Divisão: '"
+=":resDivisao"
 ```
 
 Para mais exemplos, consulte o arquivo `exemplos_psalms.psalms` incluído no projeto.
