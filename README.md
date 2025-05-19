@@ -318,11 +318,13 @@ deus :listarNumeros -> :limite {
   -- Loop que vai de 0 até o limite
   loop(:i -> 0; :i < :limite; :i -> :i + 1) {
     -- Verifica se o número é par ou ímpar
-    se(:i % 2 == 0):
+    se(:i % 2 == 0){
       ="'Número par: '" + :i
-    senao:
+    senao{
       ="'Número ímpar: '" + :i
+    }
   }
+}
 
   amen :limite
 }
@@ -334,20 +336,28 @@ deus :listarNumeros -> :limite {
 ### Exemplo 3: Calculadora Simples
 
 ```psalms
-deus :calculadora -> :operacao, :a, :b {
-  escolha(:operacao) {
-    caso "soma":
+deus :calculadora -> :operacao, :a, :b{
+  escolha(:operacao){
+    caso "soma"{
       amen :a + :b
-    caso "subtracao":
+    }
+    caso "subtracao"{
       amen :a - :b
-    caso "multiplicacao":
+    }
+    caso "multiplicacao"{
       amen :a * :b
-    caso "divisao":
-      se(:b == 0):
+    }
+    caso "divisao"{
+      se(:b == 0){
         amen "Erro: Divisão por zero"
-      amen :a / :b
-    padrao:
+      }
+      senao{
+        amen :a / :b
+      }
+    }
+    padrao{
       amen "Operação inválida"
+    }
   }
 }
 
