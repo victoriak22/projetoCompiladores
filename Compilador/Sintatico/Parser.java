@@ -128,10 +128,15 @@ public class Parser {
     }
 
     public ASTNode comando() {
-
+        // 1. Comando de impressão
         ASTNode print = comandoPrint();
         if (print != null)
             return print;
+            
+        // 1.1 Comando de input (novo)
+        ASTNode input = comandoInput();
+        if (input != null)
+            return input;
 
         // 2. Delimitadores (opcional)
         if (token != null && (token.getLexema().equals(",") || token.getLexema().equals(";"))) {
@@ -155,6 +160,8 @@ public class Parser {
             return cmd;
         if ((cmd = comandoReturn()) != null)
             return cmd;
+        if ((cmd = comandoParar()) != null)
+            return cmd;
         if ((cmd = atribuicao()) != null)
             return cmd;
         if ((cmd = chamadaFuncao()) != null)
@@ -171,10 +178,40 @@ public class Parser {
             return cmd;
         if ((cmd = comentario()) != null)
             return cmd;
+        
         // 6. Token não reconhecido
         if (token != null) {
             System.out.println("Token não reconhecido como comando: " + token.getLexema());
             avancaToken();
+        }
+        return null;
+    }
+    
+    /**
+     * Processa um comando de entrada (leitura)
+     * Formato: $ler(:variavel)
+     */
+    public ASTNode comandoInput() {
+        if (token != null && token.getTipo().equals("INPUT")) {
+            // Extrai o nome da variável (entre parênteses)
+            String lexema = token.getLexema();
+            int inicio = lexema.indexOf("(") + 1;
+            int fim = lexema.indexOf(")");
+            
+            if (inicio > 0 && fim > inicio) {
+                String nomeVar = lexema.substring(inicio, fim);
+                
+                // Cria o nó de variável
+                VarNode var = new VarNode(nomeVar);
+                
+                // Avança o token
+                avancaToken();
+                
+                // Retorna o nó de input
+                return new InputNode(var);
+            } else {
+                erro("Formato inválido para comando de leitura: " + lexema);
+            }
         }
         return null;
     }
@@ -245,6 +282,16 @@ public class Parser {
 
         return new ReturnNode(expr);
     }
+    
+    /**
+     * Método para processar o comando "parar" (break)
+     */
+    public ASTNode comandoParar() {
+        if (matchL("parar") != null) {
+            return new BreakNode(); // Você precisará criar essa classe
+        }
+        return null;
+    }
 
     public boolean matchNomeFuncao() {
         if (token == null)
@@ -313,7 +360,57 @@ public class Parser {
         return new BlockNode(commands);
     }
 
+    /**
+     * Versão atualizada de expressão que suporta operadores lógicos
+     */
     public ASTNode expressao() {
+        ASTNode node = expressaoRelacional();
+        if (node == null)
+            return null;
+
+        while (token != null && (token.getLexema().equals("&&") || token.getLexema().equals("||"))) {
+            String op = token.getLexema();
+            avancaToken();
+            ASTNode right = expressaoRelacional();
+            if (right == null) {
+                erro("Esperava expressão após operador " + op);
+                return null;
+            }
+            node = new BinOpNode(node, op, right);
+        }
+        return node;
+    }
+
+    /**
+     * Método para expressões relacionais (==, !=, >, <, etc)
+     */
+    public ASTNode expressaoRelacional() {
+        ASTNode node = expressaoAritmetica();
+        if (node == null)
+            return null;
+
+        if (token != null && (token.getLexema().equals("==") || 
+                          token.getLexema().equals("!=") ||
+                          token.getLexema().equals(">") ||
+                          token.getLexema().equals("<") ||
+                          token.getLexema().equals(">=") ||
+                          token.getLexema().equals("<="))) {
+            String op = token.getLexema();
+            avancaToken();
+            ASTNode right = expressaoAritmetica();
+            if (right == null) {
+                erro("Esperava expressão após operador " + op);
+                return null;
+            }
+            node = new BinOpNode(node, op, right);
+        }
+        return node;
+    }
+
+    /**
+     * Método para expressões aritméticas
+     */
+    public ASTNode expressaoAritmetica() {
         ASTNode node = termo();
         if (node == null)
             return null;
@@ -368,11 +465,6 @@ public class Parser {
         // Verifica valores atômicos (números, variáveis, etc.)
         return valor(); // Seu método existente que retorna Num, Var, etc.
     }
-
-    // private boolean isOperator(Token t) {
-    // return t != null && List.of("+", "-", "*", "/", "==", "<",
-    // ">").contains(t.getLexema());
-    // }
 
     public ASTNode valor() {
         if (token == null)
@@ -429,7 +521,7 @@ public class Parser {
 
         // Caso 2: Processa cada argumento
         while (peek() != null) {
-            ASTNode expr = expressao(); // Agora expressao() retorna ASTNode
+            ASTNode expr = expressao();
             if (expr == null) {
                 erro("Esperava uma expressão válida.");
                 return null;
@@ -806,75 +898,107 @@ public class Parser {
         return null;
     }
 
+/**
+    * Versão atualizada para processar comandos de impressão
+    * Suporta tanto o formato antigo "=" quanto o novo "p()"
+    */
     public ASTNode comandoPrint() {
-        Token printToken = matchT("PRINT");
-        if (printToken == null)
-            return null;
-
-        // O token PRINT contém a primeira parte da string
-        String conteudo = printToken.getLexema().substring(2, printToken.getLexema().length() - 1);
-        ASTNode printContent = new Str(conteudo);
-
-        // Verificar se há concatenação (operador +)
-        if (token != null && token.getLexema().equals("+")) {
-            avancaToken(); // Consumir o token "+"
-
-            // Ler a variável após o operador +
-            ASTNode varNode = valor();
-            if (varNode != null) {
-                // Criar nó de concatenação
-                return new PrintNode(new BinOpNode(printContent, "+", varNode));
+        // Verifica formato novo (começando com p)
+        if (token != null && token.getTipo().equals("PRINT")) {
+            if (token.getLexema().startsWith("p(")) {
+                // Nova sintaxe: p("conteúdo") ou p(variavel)
+                String lexema = token.getLexema();
+                int inicio = lexema.indexOf("(") + 1;
+                int fim = lexema.lastIndexOf(")");
+                
+                if (inicio > 0 && fim > inicio) {
+                    String conteudo = lexema.substring(inicio, fim);
+                    ASTNode printContent;
+                    
+                    // Verifica se é string literal ou variável
+                    if (conteudo.startsWith("\"") && conteudo.endsWith("\"")) {
+                        // String literal (remove as aspas)
+                        printContent = new Str(conteudo.substring(1, conteudo.length() - 1));
+                    } else {
+                        // Variável ou expressão
+                        printContent = new VarNode(conteudo);
+                    }
+                    
+                    // Avança o token
+                    avancaToken();
+                    
+                    return new PrintNode(printContent);
+                }
+            } else {
+                // Formato antigo: ="conteúdo" ou =variavel
+                Token printToken = token;
+                avancaToken();
+                String conteudo = printToken.getLexema().substring(1); // Remove o '='
+                ASTNode printContent = new Str(conteudo);
+ 
+                // Verificar se há concatenação (operador +)
+                if (token != null && token.getLexema().equals("+")) {
+                    avancaToken(); // Consumir o token "+"
+ 
+                    // Ler a variável após o operador +
+                    ASTNode varNode = valor();
+                    if (varNode != null) {
+                        // Criar nó de concatenação
+                        return new PrintNode(new BinOpNode(printContent, "+", varNode));
+                    }
+                }
+ 
+                // Se não houver concatenação, retorna apenas o conteúdo
+                return new PrintNode(printContent);
             }
         }
-
-        // Se não houver concatenação, retorna apenas o conteúdo
-        return new PrintNode(printContent);
+        return null;
     }
-
+ 
     public ASTNode parseExpression() {
         ASTNode node = parseTerm();
-
+ 
         while (token != null && (token.getLexema().equals("+") || token.getLexema().equals("-"))) {
             String op = token.getLexema();
             avancaToken();
             ASTNode right = parseTerm();
             node = new BinOpNode(node, op, right);
         }
-
+ 
         return node;
     }
-
+ 
     private ASTNode parseTerm() {
         ASTNode node = parseFactor();
-
+ 
         while (token != null && (token.getLexema().equals("*") || token.getLexema().equals("/"))) {
             String op = token.getLexema();
             avancaToken();
             ASTNode right = parseFactor();
             node = new BinOpNode(node, op, right);
         }
-
+ 
         return node;
     }
-
+ 
     private ASTNode parseFactor() {
         if (token == null)
             return null;
-
+ 
         // Números inteiros ou decimais
         if (token.getTipo().equals("INTEGER") || token.getTipo().equals("DECIMAL")) {
             Num num = new Num(token.getLexema(), token.getTipo());
             avancaToken();
             return num;
         }
-
+ 
         // Variáveis (começam com :)
         if (token.getTipo().equals("ID") && token.getLexema().startsWith(":")) {
             VarNode var = new VarNode(token.getLexema());
             avancaToken();
             return var;
         }
-
+ 
         // Parênteses para agrupamento
         if (token.getLexema().equals("(")) {
             avancaToken();
@@ -886,37 +1010,37 @@ public class Parser {
             avancaToken();
             return expr;
         }
-
+ 
         erro("Fator inválido: " + token.getLexema());
         return null;
     }
-
+ 
     public ASTNode chamadaFuncMat() {
         System.out.println("Verificando chamada de função matemática...");
-
+ 
         Token funcToken = matchT("MULTIPLY_FUNC");
         if (funcToken == null)
             funcToken = matchT("SOMAR_FUNC");
         if (funcToken == null)
             funcToken = matchT("DIVIDIR_FUNC");
-
+ 
         if (funcToken == null)
             return null; // Não é uma função matemática
-
+ 
         if (matchL("(") == null) {
             erro("Esperava '(' após função matemática");
             return null;
         }
-
+ 
         List<ASTNode> args = argumentos(); // argumentos() deve retornar List<ASTNode>
         if (args == null || matchL(")") == null) {
             erro("Argumentos inválidos na função matemática");
             return null;
         }
-
+ 
         return new MathFuncNode(funcToken.getLexema(), args);
     }
-
+ 
     private boolean consumirDelimitador(String delimitador) {
         if (token != null && token.getLexema().equals(delimitador)) {
             System.out.println("Consumindo delimitador: " + delimitador);
@@ -925,17 +1049,17 @@ public class Parser {
         }
         return false;
     }
-
+ 
     enum LogLevel {
         DEBUG, INFO, ERROR
     }
-
+ 
     private LogLevel logLevel = LogLevel.INFO;
-
+ 
     private void log(LogLevel level, String message) {
         if (level.ordinal() >= logLevel.ordinal()) {
             String coloredMessage = message;
-
+ 
             switch (level) {
                 case ERROR:
                     coloredMessage = ANSI_RED + message + ANSI_RESET;
@@ -947,9 +1071,18 @@ public class Parser {
                     coloredMessage = ANSI_YELLOW + message + ANSI_RESET;
                     break;
             }
-
+ 
             System.out.println(getIndent() + coloredMessage);
         }
     }
-
-}
+    
+    /**
+     * Classe para representar um nó de break (parar) na AST
+     */
+    public static class BreakNode extends ASTNode {
+        @Override
+        public String toFormattedString(String indent, boolean isLast) {
+            return indent + (isLast ? "└── " : "├── ") + "Break\n";
+        }
+    }
+ }
