@@ -2,7 +2,7 @@
 
 se(:idade >= 18) {
   se(:idade == 19) { 
-      ="'vc tem 19'"
+      ="'Você tem 19 anos'"
   }
   ="'Maior de idade'"
 senao {

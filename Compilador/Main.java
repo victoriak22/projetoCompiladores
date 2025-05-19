@@ -65,7 +65,6 @@ public class Main {
         List<Token> tokens = lexer.getTokens();
         printTokens(tokens);
 
-        // return "true";
         // Análise Sintática
         printHeader("ANALISE SINTATICA");
         Parser parser = new Parser(tokens);
@@ -73,22 +72,26 @@ public class Main {
 
         if (ast != null) {
             printAst(ast);
-
-            // Tradução para Pascal
-            printHeader("TRADUÇÃO PARA PASCAL");
-            String pascalCode = PascalTranslator.translate(ast);
-            System.out.println(pascalCode);
-
-            // Salvar em arquivo
-            try (FileWriter writer = new FileWriter(OUTPUT_FILE)) {
-                writer.write(pascalCode);
-            }
-            System.out.println("[OK] Código Pascal salvo em: " + OUTPUT_FILE);
         } else {
             printError("Erros sintáticos encontrados");
+
+            // // Tradução para Pascal
+            // printHeader("TRADUÇÃO PARA PASCAL");
+            // String pascalCode = PascalTranslator.translate(ast);
+            // System.out.println(pascalCode);
+
+            // // Salvar em arquivo
+            // try (FileWriter writer = new FileWriter(OUTPUT_FILE)) {
+            // writer.write(pascalCode);
+            // }
+            // System.out.println("[OK] Código Pascal salvo em: " + OUTPUT_FILE);
+            // } else {
+            // printError("Erros sintáticos encontrados");
+            // }
         }
 
-        return OUTPUT_FILE;
+        // return OUTPUT_FILE;
+        return "true";
     }
 
     private static void printHeader(String title) {

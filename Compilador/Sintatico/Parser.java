@@ -479,38 +479,126 @@ public class Parser {
     }
 
     public ASTNode estruturaCondicional() {
-        if (matchL("se") == null)
+        // Verificamos se começa com "se"
+        if (token == null || !token.getLexema().equals("se")) {
             return null;
+        }
+        
+        avancaToken(); // Consome "se"
 
-        if (matchL("(") == null)
+        // Verificamos a condição
+        if (token == null || !token.getLexema().equals("(")) {
+            erro("Esperava '(' após 'se'");
             return null;
+        }
+        avancaToken(); // Consome "("
+
         ASTNode condicao = expressao();
-        if (condicao == null || matchL(")") == null || matchL(":") == null) {
+        if (condicao == null) {
+            erro("Condição inválida em 'se'");
             return null;
         }
 
-        BlockNode thenBlock = listaComandos(); // Agora retorna BlockNode
+        if (token == null || !token.getLexema().equals(")")) {
+            erro("Esperava ')' após condição");
+            return null;
+        }
+        avancaToken(); // Consome ")"
+
+        // Verificamos se temos um bloco
+        BlockNode thenBlock = null;
+        if (token != null && token.getLexema().equals("{")) {
+            // Bloco completo
+            thenBlock = bloco();
+        } else {
+            // Comando único
+            ASTNode comando = comando();
+            if (comando != null) {
+                List<ASTNode> comandos = new ArrayList<>();
+                comandos.add(comando);
+                thenBlock = new BlockNode(comandos);
+            }
+        }
+
+        if (thenBlock == null) {
+            erro("Esperava bloco ou comando após se(condição)");
+            return null;
+        }
+
+        // Lista para armazenar blocos "senaose"
         List<ElseIfNode> elseIfBlocks = new ArrayList<>();
         BlockNode elseBlock = null;
 
-        while (matchL("senaose") != null) {
-            if (matchL("(") == null)
-                return null;
-            ASTNode elseIfCond = expressao();
-            if (elseIfCond == null || matchL(")") == null || matchL(":") == null) {
+        // Processamos blocos "senaose" em sequência
+        while (token != null && token.getLexema().equals("senaose")) {
+            avancaToken(); // Consome "senaose"
+
+            if (token == null || !token.getLexema().equals("(")) {
+                erro("Esperava '(' após 'senaose'");
                 return null;
             }
-            BlockNode elseIfBody = listaComandos();
-            elseIfBlocks.add(new ElseIfNode(elseIfCond, elseIfBody));
-        }
+            avancaToken(); // Consome "("
 
-        if (matchL("senao") != null) {
-            if (matchL(":") == null)
+            ASTNode elseIfCond = expressao();
+            if (elseIfCond == null) {
+                erro("Condição inválida em 'senaose'");
                 return null;
-            elseBlock = listaComandos();
+            }
+
+            if (token == null || !token.getLexema().equals(")")) {
+                erro("Esperava ')' após condição em 'senaose'");
+                return null;
+            }
+            avancaToken(); // Consome ")"
+
+            // Verificamos se temos um bloco
+            ASTNode elseIfBody = null;
+            if (token != null && token.getLexema().equals("{")) {
+                // Bloco completo
+                elseIfBody = bloco();
+            } else {
+                // Comando único
+                ASTNode comando = comando();
+                if (comando != null) {
+                    List<ASTNode> comandos = new ArrayList<>();
+                    comandos.add(comando);
+                    elseIfBody = new BlockNode(comandos);
+                }
+            }
+
+            if (elseIfBody == null) {
+                erro("Esperava bloco ou comando após senaose(condição)");
+                return null;
+            }
+
+            elseIfBlocks.add(new ElseIfNode(elseIfCond, (BlockNode) elseIfBody));
         }
 
-        return new IfNode(condicao, thenBlock, elseIfBlocks, elseBlock);
+        // Processamos um possível bloco "senao"
+        if (token != null && token.getLexema().equals("senao")) {
+            avancaToken(); // Consome "senao"
+
+            // Verificamos se temos um bloco
+            if (token != null && token.getLexema().equals("{")) {
+                // Bloco completo
+                elseBlock = (BlockNode) bloco();
+            } else {
+                // Comando único
+                ASTNode comando = comando();
+                if (comando != null) {
+                    List<ASTNode> comandos = new ArrayList<>();
+                    comandos.add(comando);
+                    elseBlock = new BlockNode(comandos);
+                }
+            }
+
+            if (elseBlock == null) {
+                erro("Esperava bloco ou comando após senao");
+                return null;
+            }
+        }
+
+        return new IfNode(condicao, (BlockNode) thenBlock, elseIfBlocks, elseBlock);
     }
 
     public ASTNode estruturaLoop() {

@@ -25,8 +25,8 @@ public class Lexer {
         afds.add(new StringToken()); // Strings entre aspas simples
         afds.add(new BooleanToken()); // Valores booleanos
         afds.add(new ReservedWords());
-        afds.add(new MathOperator()); // +, -, *, /
         afds.add(new RelationalOperator()); // ==, !=, etc
+        afds.add(new MathOperator()); // +, -, *, /
         afds.add(new Number()); // Números inteiros/decimais
         afds.add(new Delimiters()); // , ; ( ) { }
         afds.add(new Identifier()); // Identificadores (começam com :)
