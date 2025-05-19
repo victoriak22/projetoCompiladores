@@ -8,7 +8,7 @@ import Compilador.Lexico.Token;
 public class StringIdentifier extends AFD {
     @Override
     public Token evaluate(CharacterIterator code) {
-        if (code.current() != '"') {
+        if (code.current() != '\'') {
             return null;
         }
 
@@ -21,7 +21,7 @@ public class StringIdentifier extends AFD {
             code.next();
         }
 
-        if (code.current() == '"') {
+        if (code.current() == '\'') {
             value.append(code.current()); // fecha aspas
             code.next();
             return new Token("STRING", value.toString());

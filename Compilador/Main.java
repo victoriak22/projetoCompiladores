@@ -65,6 +65,7 @@ public class Main {
         List<Token> tokens = lexer.getTokens();
         printTokens(tokens);
 
+        // return "true";
         // Análise Sintática
         printHeader("ANALISE SINTATICA");
         Parser parser = new Parser(tokens);

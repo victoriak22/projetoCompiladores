@@ -4,18 +4,11 @@ USES
   SysUtils; // Para conversões String <-> número
 
 VAR
-  texto: String;
-  inteiro: Integer;
-  booleano: Boolean;
-  decimal: Double;
+  idade: Integer;
 
 BEGIN
-  inteiro := 42;
-  decimal := 3.14;
-  booleano := True;
-  texto := 'Olá mundo!';
-  WriteLn('''Valor inteiro: ''', IntToStr(inteiro));
-  WriteLn('''Valor decimal: ''', FloatToStr(decimal));
-  WriteLn('''Valor booleano: ''', BoolToStr(booleano, 'luz', 'trevas'));
-  WriteLn('''Valor texto: ''', texto);
+  idade := 19;
+  WriteLn('''vc tem 19''');
+  WriteLn('''Maior de idade''');
+  WriteLn('''Menor de idade''');
 END.

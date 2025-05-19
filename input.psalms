@@ -1,10 +1,11 @@
--- Teste de todos os tipos de variáveis em PSALMS
-:inteiro -> 42
-:decimal -> 3.14
-:booleano -> luz
-:texto -> 'Olá mundo!'
+:idade -> 19
 
-="'Valor inteiro: '" + :inteiro
-="'Valor decimal: '" + :decimal
-="'Valor booleano: '" + :booleano
-="'Valor texto: '" + :texto
+se(:idade >= 18) {
+  se(:idade == 19) { 
+      ="'vc tem 19'"
+  }
+  ="'Maior de idade'"
+senao {
+  ="'Menor de idade'"
+}
+}
