@@ -315,10 +315,18 @@ public class Parser {
 
     public ASTNode expressao() {
         ASTNode node = termo();
-        while (token != null && List.of("+", "-").contains(token.getLexema())) {
-            Token op = token;
+        if (node == null)
+            return null;
+
+        while (token != null && (token.getLexema().equals("+") || token.getLexema().equals("-"))) {
+            String op = token.getLexema();
             avancaToken();
-            node = new BinOpNode(node, op.getLexema(), termo());
+            ASTNode right = termo();
+            if (right == null) {
+                erro("Esperava expressão após operador " + op);
+                return null;
+            }
+            node = new BinOpNode(node, op, right);
         }
         return node;
     }
@@ -370,9 +378,15 @@ public class Parser {
         if (token == null)
             return null;
 
-        // Caso 1: Números
-        if (token.getTipo().equals("INTEGER") || token.getTipo().equals("DECIMAL")) {
-            Num num = new Num(token.getLexema(), token.getTipo());
+        // Caso 1: Números (inteiros e decimais)
+        if (token.getTipo().equals("INTEGER")) {
+            Num num = new Num(token.getLexema(), "INTEGER");
+            avancaToken();
+            return num;
+        }
+
+        if (token.getTipo().equals("FLOAT")) {
+            Num num = new Num(token.getLexema(), "DECIMAL");
             avancaToken();
             return num;
         }
@@ -384,23 +398,18 @@ public class Parser {
             return bool;
         }
 
-        // Caso 3: Identificadores (variáveis ou funções)
-        if (token.getTipo().equals("ID")) {
-            String nome = token.getLexema();
+        // Caso 3: Strings
+        if (token.getTipo().equals("STRING")) {
+            Str str = new Str(token.getLexema().substring(1, token.getLexema().length() - 1));
             avancaToken();
+            return str;
+        }
 
-            // Se tem parênteses, é chamada de função
-            if (token != null && token.getLexema().equals("(")) {
-                avancaToken(); // Consome "("
-                List<ASTNode> args = parseArgumentos();
-                if (!token.getLexema().equals(")")) {
-                    erro("Esperado ')' após argumentos");
-                }
-                avancaToken(); // Consome ")"
-                return new CallExpr(nome, args);
-            }
-            // Senão, é variável
-            return new VarNode(nome);
+        // Caso 4: Identificadores (variáveis)
+        if (token.getTipo().equals("ID")) {
+            VarNode var = new VarNode(token.getLexema());
+            avancaToken();
+            return var;
         }
 
         return null;
@@ -714,37 +723,24 @@ public class Parser {
         if (printToken == null)
             return null;
 
-        // O lexema vem como ="conteúdo"
+        // O token PRINT contém a primeira parte da string
         String conteudo = printToken.getLexema().substring(2, printToken.getLexema().length() - 1);
+        ASTNode printContent = new Str(conteudo);
 
-        // Se for string pura (entre aspas simples)
-        if (conteudo.startsWith("'") && conteudo.endsWith("'")) {
-            return new PrintNode(new Str(conteudo.substring(1, conteudo.length() - 1)));
+        // Verificar se há concatenação (operador +)
+        if (token != null && token.getLexema().equals("+")) {
+            avancaToken(); // Consumir o token "+"
+
+            // Ler a variável após o operador +
+            ASTNode varNode = valor();
+            if (varNode != null) {
+                // Criar nó de concatenação
+                return new PrintNode(new BinOpNode(printContent, "+", varNode));
+            }
         }
 
-        // Se tiver concatenação
-        return processarConcatencao(conteudo);
-    }
-
-    private ASTNode processarConcatencao(String expressao) {
-        String[] partes = expressao.split("\\s*\\+\\s*");
-        if (partes.length == 0)
-            return null;
-
-        ASTNode resultado = criarNo(partes[0]);
-        for (int i = 1; i < partes.length; i++) {
-            resultado = new BinOpNode(resultado, "+", criarNo(partes[i]));
-        }
-        return resultado;
-    }
-
-    private ASTNode criarNo(String conteudo) {
-        if (conteudo.startsWith("'") && conteudo.endsWith("'")) {
-            return new Str(conteudo.substring(1, conteudo.length() - 1));
-        } else if (conteudo.startsWith(":")) {
-            return new VarNode(conteudo);
-        }
-        return null;
+        // Se não houver concatenação, retorna apenas o conteúdo
+        return new PrintNode(printContent);
     }
 
     public ASTNode parseExpression() {
