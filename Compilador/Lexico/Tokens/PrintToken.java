@@ -6,44 +6,53 @@ import Compilador.Lexico.*;
 public class PrintToken extends AFD {
     @Override
     public Token evaluate(CharacterIterator code) {
-        if (code.current() == '=') {
+        if (code.current() == 'p') {
             int startPos = code.getIndex();
-            code.next(); // Consome '='
-
-            if (code.current() == '"') {
-                code.next(); // Consome '"'
-                StringBuilder content = new StringBuilder("=\"");
-
-                // Coleta o conteúdo até a próxima aspas
-                while (code.current() != '"' && code.current() != CharacterIterator.DONE) {
-                    content.append(code.current());
-                    code.next();
-                }
-
+            code.next(); // Consome 'p'
+            
+            // Verifica se o caractere seguinte é um parêntese de abertura
+            if (code.current() == '(') {
+                code.next(); // Consome '('
+                StringBuilder content = new StringBuilder("p(");
+                
+                // Verifica se é uma string com aspas
                 if (code.current() == '"') {
                     content.append('"');
-                    code.next(); // Consome a aspas final
-                    return new Token("PRINT", content.toString());
-                }
-            } else if (code.current() == '\'') {
-                // Caso para sintaxe alternativa: ='texto'
-                code.next(); // Consome a aspa simples inicial
-                StringBuilder content = new StringBuilder("='");
-
-                // Coleta o conteúdo até a próxima aspa simples
-                while (code.current() != '\'' && code.current() != CharacterIterator.DONE) {
-                    content.append(code.current());
-                    code.next();
-                }
-
-                if (code.current() == '\'') {
-                    content.append('\'');
-                    code.next(); // Consome a aspa simples final
-                    return new Token("PRINT", content.toString());
+                    code.next(); // Consome '"'
+                    
+                    // Coleta o conteúdo até a próxima aspas
+                    while (code.current() != '"' && code.current() != CharacterIterator.DONE) {
+                        content.append(code.current());
+                        code.next();
+                    }
+                    
+                    if (code.current() == '"') {
+                        content.append('"');
+                        code.next(); // Consome a aspas final
+                        
+                        // Verifica se há fechamento do parêntese
+                        if (code.current() == ')') {
+                            content.append(')');
+                            code.next(); // Consome ')'
+                            return new Token("PRINT", content.toString());
+                        }
+                    }
+                } else {
+                    // Caso seja uma expressão ou variável sem aspas
+                    while (code.current() != ')' && code.current() != CharacterIterator.DONE) {
+                        content.append(code.current());
+                        code.next();
+                    }
+                    
+                    if (code.current() == ')') {
+                        content.append(')');
+                        code.next(); // Consome ')'
+                        return new Token("PRINT", content.toString());
+                    }
                 }
             }
-
-            // Se não fechou corretamente, volta ao início
+            
+            // Se não seguir o padrão esperado, volta ao início
             code.setIndex(startPos);
         }
         return null;

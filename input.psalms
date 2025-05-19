@@ -1,11 +1,16 @@
-:idade -> 19
+-- Teste de entrada do usuário
+:nome -> ''
+:idade -> 0
 
-se(:idade >= 18) {
-  se(:idade == 19) { 
-      ="'Você tem 19 anos'"
-  }
-  ="'Maior de idade'"
-senao {
-  ="'Menor de idade'"
-}
-}
+p("Digite seu nome:")
+$ler(:nome)
+
+p("Digite sua idade:")
+$ler(:idade)
+
+p("Olá!")
+p("Seu nome eh:")
+p(:nome)
+p("Sua idade eh:")
+p(:idade)
+p("Anos")

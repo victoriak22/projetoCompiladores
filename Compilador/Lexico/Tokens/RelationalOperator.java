@@ -23,7 +23,6 @@ public class RelationalOperator extends AFD {
                     code.next();
                     return new Token("EQUALS", "==");
                 }
-                throw new RuntimeException("Símbolo '=' inválido. Use '==' para comparação ou '->' para atribuição");
 
             case '>':
                 code.next();

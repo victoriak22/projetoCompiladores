@@ -22,6 +22,7 @@ public class Lexer {
         // Ordem de avaliação é crítica - do mais específico ao mais genérico
         afds.add(new CommentToken()); // Comentários
         afds.add(new PrintToken()); // Prints
+        afds.add(new InputToken()); // Input
         afds.add(new StringToken()); // Strings entre aspas simples
         afds.add(new BooleanToken()); // Valores booleanos
         afds.add(new ReservedWords());
