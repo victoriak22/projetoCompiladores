@@ -2,9 +2,12 @@ package Compilador;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import Compilador.Lexico.Lexer;
@@ -14,18 +17,27 @@ import Compilador.Tradutor.PascalTranslator;
 import Compilador.ast.ASTNode;
 
 public class Main {
+    // Código de exemplo mantido como fallback caso o arquivo não seja encontrado
     private static final String SAMPLE_CODE = "deus :multiplicar -> :A, :B {\n" +
             "  :resultado -> :A * :B\n" +
             "  amen :resultado\n" +
             "}\n" +
             "\n" +
-            ":resultadoMultiplicacao -> :multiplicar(3, 4)\n" +
+            ":resultadoMultiplicacao -> :multiplicar(3, 6)\n" +
             "=\"'Resultado da multiplicação: '\" + :resultadoMultiplicacao\n";
+
+    private static final String INPUT_FILE = "input.psalms";
+    private static final String OUTPUT_FILE = "output.pas";
 
     public static void main(String[] args) {
         try {
-            // Compilando código PSALMS para Pascal
-            String outputFile = compile(SAMPLE_CODE);
+            // Tenta ler o código fonte do arquivo de entrada
+            String sourceCode = readSourceFile(INPUT_FILE);
+
+            // Compila o código PSALMS para Pascal
+            String outputFile = compile(sourceCode);
+
+            System.out.println("[INFO] Compilação concluída com sucesso!");
         } catch (Exception e) {
             System.err.println("\n[ERRO] Durante a compilação:");
             e.printStackTrace();
@@ -33,9 +45,23 @@ public class Main {
         }
     }
 
-    private static String compile(String sourceCode) throws IOException {
-        String outputFile = "output.pas";
+    /**
+     * Lê o conteúdo do arquivo fonte.
+     * Se o arquivo não existir, usa o código de exemplo.
+     */
+    private static String readSourceFile(String filename) throws IOException {
+        Path filePath = Paths.get(filename);
 
+        if (Files.exists(filePath)) {
+            System.out.println("[INFO] Lendo arquivo de entrada: " + filename);
+            return Files.readString(filePath);
+        } else {
+            System.out.println("[AVISO] Arquivo " + filename + " não encontrado. Usando código de exemplo.");
+            return SAMPLE_CODE;
+        }
+    }
+
+    private static String compile(String sourceCode) throws IOException {
         // Análise Léxica
         printHeader("ANALISE LEXICA");
         Lexer lexer = new Lexer(sourceCode);
@@ -56,15 +82,15 @@ public class Main {
             System.out.println(pascalCode);
 
             // Salvar em arquivo
-            try (FileWriter writer = new FileWriter(outputFile)) {
+            try (FileWriter writer = new FileWriter(OUTPUT_FILE)) {
                 writer.write(pascalCode);
             }
-            System.out.println("[OK] Código Pascal salvo em: " + outputFile);
+            System.out.println("[OK] Código Pascal salvo em: " + OUTPUT_FILE);
         } else {
             printError("Erros sintáticos encontrados");
         }
 
-        return outputFile;
+        return OUTPUT_FILE;
     }
 
     private static void printHeader(String title) {

@@ -1,0 +1,258 @@
+-- ===================================
+-- EXEMPLOS DE PROGRAMAS EM PSALMS
+-- ===================================
+
+-- EXEMPLO 1 - FUNÇÃO BÁSICA DE MULTIPLICAÇÃO
+-- Demonstra função simples com dois parâmetros e retorno
+deus :multiplicar -> :A, :B {
+  :resultado -> :A * :B
+  amen :resultado
+}
+
+:resultadoMultiplicacao -> :multiplicar(3, 4)
+="'Resultado da multiplicação: '" + :resultadoMultiplicacao
+
+
+-- EXEMPLO 2 - LOOP COM CONDICIONAL
+-- Demonstra loop e estruturas condicionais
+deus :listarNumeros -> :limite {
+  -- Declaração de variável de controle
+  :i -> 0
+  
+  -- Loop que vai de 0 até o limite
+  loop(:i -> 0; :i < :limite; :i -> :i + 1) {
+    -- Verifica se o número é par ou ímpar
+    se(:i % 2 == 0):
+      ="'Número par: '" + :i
+    senao:
+      ="'Número ímpar: '" + :i
+  }
+  
+  amen :limite -- Retorna o valor do limite apenas como exemplo
+}
+
+-- Chamada da função com limite 5
+:resultado -> :listarNumeros(5)
+
+
+-- EXEMPLO 3 - ESTRUTURA ESCOLHA (SWITCH/CASE)
+-- Demonstra uso de estrutura de escolha
+deus :verboCelestial -> :comando {
+  escolha(:comando) {
+    caso "orar":
+      ="'Você escolheu orar.'"
+      parar
+    caso "louvar":
+      ="'Você escolheu louvar.'"
+      parar
+    padrao:
+      ="'Comando desconhecido.'"
+  }
+}
+
+:resposta -> :verboCelestial("orar")
+
+
+-- EXEMPLO 4 - TRATAMENTO DE ERROS
+-- Demonstra uso de tratamento de exceções
+deus :divisaoCelestial -> :A, :B {
+  tente {
+    se(:B == 0):
+      -- Lançamento de erro simulado
+      :erroMsg -> "Divisão pelas trevas (divisão por zero)"
+      amen :erroMsg
+    
+    :resultado -> :A / :B
+    amen :resultado
+  }
+  capturar(:e):
+    ="'Erro: '" + :e
+}
+
+:resultadoDivisao -> :divisaoCelestial(10, 2)
+="'Resultado da divisão: '" + :resultadoDivisao
+
+:resultadoErro -> :divisaoCelestial(10, 0)
+="'Resultado da divisão por zero: '" + :resultadoErro
+
+
+-- EXEMPLO 5 - CÁLCULO FATORIAL
+-- Demonstra função recursiva
+deus :fatorial -> :n {
+  se(:n <= 1):
+    amen 1
+  
+  amen :n * :fatorial(:n - 1)
+}
+
+:valorFatorial -> :fatorial(5)
+="'Fatorial de 5 é: '" + :valorFatorial
+
+
+-- EXEMPLO 6 - VERIFICAÇÃO DE NÚMEROS PRIMOS
+-- Demonstra loops aninhados e verificações mais complexas
+deus :ehPrimo -> :numero {
+  se(:numero <= 1):
+    amen trevas
+  
+  se(:numero <= 3):
+    amen luz
+  
+  se(:numero % 2 == 0 || :numero % 3 == 0):
+    amen trevas
+  
+  :i -> 5
+  enquanto(:i * :i <= :numero) {
+    se(:numero % :i == 0 || :numero % (:i + 2) == 0):
+      amen trevas
+    
+    :i -> :i + 6
+  }
+  
+  amen luz
+}
+
+deus :listarPrimos -> :limite {
+  :contador -> 0
+  loop(:i -> 1; :i <= :limite; :i -> :i + 1) {
+    :primo -> :ehPrimo(:i)
+    se(:primo == luz):
+      =" + :i + " é primo."
+      :contador -> :contador + 1
+  }
+  
+  amen :contador
+}
+
+:totalPrimos -> :listarPrimos(20)
+="'Total de números primos até 20: '" + :totalPrimos
+
+
+-- EXEMPLO 7 - CALCULADORA SIMPLES
+-- Demonstra uso de escolha/caso para implementar uma calculadora
+deus :calculadora -> :operacao, :a, :b {
+  escolha(:operacao) {
+    caso "soma":
+      amen :a + :b
+    caso "subtracao":
+      amen :a - :b
+    caso "multiplicacao":
+      amen :a * :b
+    caso "divisao":
+      se(:b == 0):
+        amen "Erro: Divisão por zero"
+      amen :a / :b
+    padrao:
+      amen "Operação inválida"
+  }
+}
+
+:resSoma -> :calculadora("soma", 10, 5)
+:resSubtracao -> :calculadora("subtracao", 10, 5)
+:resMultiplicacao -> :calculadora("multiplicacao", 10, 5)
+:resDivisao -> :calculadora("divisao", 10, 5)
+
+="'Soma: '" + :resSoma
+="'Subtração: '" + :resSubtracao
+="'Multiplicação: '" + :resMultiplicacao
+="'Divisão: '" + :resDivisao
+
+
+-- EXEMPLO 8 - GERADOR DE SEQUÊNCIA FIBONACCI
+-- Demonstra uso de loops para gerar sequência Fibonacci
+deus :fibonacci -> :n {
+  se(:n <= 0):
+    amen 0
+  
+  se(:n == 1 || :n == 2):
+    amen 1
+  
+  :a -> 1
+  :b -> 1
+  :resultado -> 0
+  
+  :i -> 3
+  enquanto(:i <= :n) {
+    :resultado -> :a + :b
+    :a -> :b
+    :b -> :resultado
+    :i -> :i + 1
+  }
+  
+  amen :resultado
+}
+
+:sequenciaFib -> ""
+loop(:i -> 1; :i <= 10; :i -> :i + 1) {
+  :valorFib -> :fibonacci(:i)
+  :sequenciaFib -> :sequenciaFib + :valorFib + " "
+}
+
+="'Sequência Fibonacci (10 primeiros): '" + :sequenciaFib
+
+
+-- EXEMPLO 9 - CÁLCULO DE MÉDIA, MÍNIMO E MÁXIMO
+-- Demonstra passagem de múltiplos valores e cálculos estatísticos
+deus :calcularEstatisticas -> :a, :b, :c, :d, :e {
+  -- Cálculo da média
+  :soma -> :a + :b + :c + :d + :e
+  :media -> :soma / 5
+  
+  -- Encontrar valor mínimo
+  :min -> :a
+  se(:b < :min): :min -> :b
+  se(:c < :min): :min -> :c
+  se(:d < :min): :min -> :d
+  se(:e < :min): :min -> :e
+  
+  -- Encontrar valor máximo
+  :max -> :a
+  se(:b > :max): :max -> :b
+  se(:c > :max): :max -> :c
+  se(:d > :max): :max -> :d
+  se(:e > :max): :max -> :e
+  
+  -- Retorna média (poderia retornar um objeto com os três valores)
+  amen :media
+}
+
+:estatisticas -> :calcularEstatisticas(10, 20, 30, 40, 50)
+="'Média dos valores: '" + :estatisticas
+
+
+-- EXEMPLO 10 - VERIFICADOR DE PALÍNDROMOS
+-- Demonstra manipulação de strings (simplificado)
+-- Nota: Esta é uma implementação simplificada, pois PSALMS não tem 
+-- suporte completo para manipulação de strings na implementação atual
+deus :ehPalindromo -> :palavra {
+  -- Em uma implementação real, verificaríamos se a palavra é igual
+  -- à sua versão invertida. Aqui, apenas simulamos o comportamento
+  -- para algumas palavras conhecidas
+  
+  se(:palavra == "ana"):
+    amen luz
+  
+  se(:palavra == "arara"):
+    amen luz
+  
+  se(:palavra == "radar"):
+    amen luz
+  
+  se(:palavra == "reviver"):
+    amen luz
+  
+  amen trevas
+}
+
+:teste1 -> :ehPalindromo("ana")
+:teste2 -> :ehPalindromo("teste")
+
+se(:teste1 == luz):
+  ="'ana é um palíndromo'"
+senao:
+  ="'ana não é um palíndromo'"
+
+se(:teste2 == luz):
+  ="'teste é um palíndromo'"
+senao:
+  ="'teste não é um palíndromo'"

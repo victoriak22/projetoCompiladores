@@ -1,0 +1,10 @@
+deus :multiplicar -> :A, :B {
+  :resultado -> :A * :B
+  -- Isso é um comentário
+  amen :resultado
+}
+
+
+-- Outro comentário para teste
+:resultadoMultiplicacao -> :multiplicar(3, 4)
+="'Resultado da multiplicação: '" + :resultadoMultiplicacao
