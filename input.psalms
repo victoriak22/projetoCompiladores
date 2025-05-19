@@ -1,4 +1,10 @@
+-- Teste de todos os tipos de variáveis em PSALMS
 :inteiro -> 42
 :decimal -> 3.14
+:booleano -> luz
+:texto -> 'Olá mundo!'
+
 ="'Valor inteiro: '" + :inteiro
 ="'Valor decimal: '" + :decimal
+="'Valor booleano: '" + :booleano
+="'Valor texto: '" + :texto

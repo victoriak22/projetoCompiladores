@@ -5,6 +5,7 @@ import java.text.StringCharacterIterator;
 import java.util.List;
 import java.util.ArrayList;
 import Compilador.Lexico.Tokens.*;
+import Compilador.Lexico.Tokens.Number;
 
 public class Lexer {
     private List<Token> tokens;
@@ -19,10 +20,10 @@ public class Lexer {
         this.code = new StringCharacterIterator(code.replace("\r\n", "\n"));
 
         // Ordem de avaliação é crítica - do mais específico ao mais genérico
-        afds.add(new CommentToken()); // Comentários devem vir primeiro
-        afds.add(new PrintToken()); // Deve vir antes de outros tokens
+        afds.add(new CommentToken()); // Comentários
+        afds.add(new PrintToken()); // Prints
         afds.add(new StringToken()); // Strings entre aspas simples
-        afds.add(new BooleanToken()); // Adicionado: valores booleanos
+        afds.add(new BooleanToken()); // Valores booleanos
         afds.add(new ReservedWords());
         afds.add(new MathOperator()); // +, -, *, /
         afds.add(new RelationalOperator()); // ==, !=, etc

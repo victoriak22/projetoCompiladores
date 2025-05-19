@@ -2,8 +2,10 @@ package Compilador.Tradutor;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import Compilador.ast.*;
@@ -18,6 +20,9 @@ public class PascalTranslator {
   // Variável para rastrear o nome da função atual sendo processada
   private static String currentFunctionName = "";
 
+  // Mapa para rastrear os tipos das variáveis
+  private static Map<String, String> variableTypes = new HashMap<>();
+
   /**
    * Traduz a AST para código Pascal.
    */
@@ -26,6 +31,7 @@ public class PascalTranslator {
     StringBuilder functions = new StringBuilder();
     StringBuilder mainCode = new StringBuilder();
     Set<String> variables = new HashSet<>();
+    variableTypes.clear(); // Limpa o mapa de tipos antes de iniciar
     currentFunctionName = ""; // Reset ao iniciar a tradução
 
     // Primeira passagem: identificar variáveis e funções
@@ -37,12 +43,16 @@ public class PascalTranslator {
     // Cabeçalho do programa Pascal
     code.append("PROGRAM PsalmsProgram;\n\n");
 
+    // Importar bibliotecas necessárias
+    code.append("USES\n  SysUtils; // Para conversões String <-> número\n\n");
+
     // Seção de variáveis
     if (!variables.isEmpty()) {
       code.append("VAR\n");
       for (String variable : variables) {
-        // Todas as variáveis são tratadas como Integer nesta versão
-        code.append("  ").append(variable).append(": Integer;\n");
+        // Determinar tipo baseado no mapa de tipos
+        String pascalType = getPascalType(variable);
+        code.append("  ").append(variable).append(": ").append(pascalType).append(";\n");
       }
       code.append("\n");
     }
@@ -56,6 +66,26 @@ public class PascalTranslator {
     code.append("END.\n");
 
     return code.toString();
+  }
+
+  /**
+   * Determina o tipo Pascal apropriado baseado no tipo PSALMS
+   */
+  private static String getPascalType(String variable) {
+    String type = variableTypes.getOrDefault(variable, "Unknown");
+
+    switch (type) {
+      case "INTEGER":
+        return "Integer";
+      case "DECIMAL":
+        return "Double";
+      case "BOOLEAN":
+        return "Boolean";
+      case "STRING":
+        return "String";
+      default:
+        return "Variant"; // Tipo genérico quando não conseguimos determinar
+    }
   }
 
   /**
@@ -80,16 +110,20 @@ public class PascalTranslator {
         lhsField.setAccessible(true);
         ASTNode lhs = (ASTNode) lhsField.get(node);
 
+        Field rhsField = AssignNode.class.getDeclaredField("rhs");
+        rhsField.setAccessible(true);
+        ASTNode rhs = (ASTNode) rhsField.get(node);
+
         if (lhs instanceof VarNode) {
           Method getName = VarNode.class.getMethod("getName");
           String varName = normalize((String) getName.invoke(lhs));
           variables.add(varName);
+
+          // Inferir tipo baseado no valor atribuído
+          inferType(varName, rhs);
         }
 
         // Verificar lado direito também (pode conter variáveis)
-        Field rhsField = AssignNode.class.getDeclaredField("rhs");
-        rhsField.setAccessible(true);
-        ASTNode rhs = (ASTNode) rhsField.get(node);
         collectDeclarations(rhs, variables, functions);
       } else if (node instanceof FunctionDeclNode) {
         if (functions != null) {
@@ -107,6 +141,53 @@ public class PascalTranslator {
       }
     } catch (Exception e) {
       // Ignorar erros na coleta
+    }
+  }
+
+  /**
+   * Infere o tipo de uma variável baseado no valor atribuído
+   */
+  private static void inferType(String varName, ASTNode valueNode) {
+    try {
+      if (valueNode instanceof Num) {
+        Method getTipo = Num.class.getMethod("getTipo");
+        Object tipoEnum = getTipo.invoke(valueNode);
+        String tipoStr = tipoEnum.toString();
+        variableTypes.put(varName, tipoStr);
+      } else if (valueNode instanceof BooleanNode) {
+        variableTypes.put(varName, "BOOLEAN");
+      } else if (valueNode instanceof Str) {
+        variableTypes.put(varName, "STRING");
+      } else if (valueNode instanceof BinOpNode) {
+        // Para expressões complexas, precisamos analisar os operandos
+        Method getOpMethod = BinOpNode.class.getMethod("getOperator");
+        String op = (String) getOpMethod.invoke(valueNode);
+
+        if ("+".equals(op)) {
+          Method getLeft = BinOpNode.class.getMethod("getLeft");
+          Method getRight = BinOpNode.class.getMethod("getRight");
+          ASTNode left = (ASTNode) getLeft.invoke(valueNode);
+          ASTNode right = (ASTNode) getRight.invoke(valueNode);
+
+          // Se qualquer um dos lados for string, o resultado será string
+          if ((left instanceof Str) || (right instanceof Str)) {
+            variableTypes.put(varName, "STRING");
+          } else {
+            // Para outros casos, assumimos decimal para operações numéricas
+            variableTypes.put(varName, "DECIMAL");
+          }
+        } else {
+          // Outros operadores como -, *, / geralmente resultam em números
+          variableTypes.put(varName, "DECIMAL");
+        }
+      } else if (valueNode instanceof CallExpr) {
+        // Para chamadas de função, poderíamos implementar uma análise de retorno
+        // Por enquanto, assumimos Variant
+        variableTypes.put(varName, "Unknown");
+      }
+    } catch (Exception e) {
+      // Em caso de erro, assumimos tipo desconhecido
+      variableTypes.put(varName, "Unknown");
     }
   }
 
@@ -191,14 +272,14 @@ public class PascalTranslator {
         for (int i = 0; i < params.size(); i++) {
           Method getName = ParamNode.class.getMethod("getName");
           String paramName = normalize((String) getName.invoke(params.get(i)));
-          code.append(paramName).append(": Integer");
+          code.append(paramName).append(": Variant"); // Por padrão, usamos Variant para parâmetros
           if (i < params.size() - 1)
             code.append("; ");
         }
         code.append(")");
 
         if (hasReturn)
-          code.append(": Integer");
+          code.append(": Variant"); // Funções podem retornar qualquer tipo
         code.append(";\n");
 
         // Variáveis locais (se houver)
@@ -208,7 +289,8 @@ public class PascalTranslator {
         if (!localVars.isEmpty()) {
           code.append("VAR\n");
           for (String var : localVars) {
-            code.append("  ").append(var).append(": Integer;\n");
+            String pascalType = getPascalType(var);
+            code.append("  ").append(var).append(": ").append(pascalType).append(";\n");
           }
         }
 
@@ -256,52 +338,8 @@ public class PascalTranslator {
 
         code.append(indentation).append("WriteLn(");
 
-        if (content instanceof Str) {
-          // String direta - usar aspas simples para Pascal
-          Method getValor = Str.class.getMethod("getValor");
-          String valor = (String) getValor.invoke(content);
-
-          code.append("'").append(valor.replace("'", "''")).append("'");
-        } else if (content instanceof BinOpNode) {
-          // Verificar se é concatenação
-          Method getOpMethod = BinOpNode.class.getMethod("getOperator");
-          String op = (String) getOpMethod.invoke(content);
-
-          if (op.equals("+")) {
-            // Concatenação (com operador +)
-            Method getLeftMethod = BinOpNode.class.getMethod("getLeft");
-            ASTNode left = (ASTNode) getLeftMethod.invoke(content);
-
-            Method getRightMethod = BinOpNode.class.getMethod("getRight");
-            ASTNode right = (ASTNode) getRightMethod.invoke(content);
-
-            // Em Pascal, para concatenar em WriteLn, usamos múltiplos argumentos separados
-            // por vírgula
-            if (left instanceof Str) {
-              Method getValor = Str.class.getMethod("getValor");
-              String valorStr = (String) getValor.invoke(left);
-              code.append("'").append(valorStr.replace("'", "''")).append("'");
-            } else {
-              translateExpressionNode(left, code);
-            }
-
-            code.append(", ");
-
-            if (right instanceof Str) {
-              Method getValor = Str.class.getMethod("getValor");
-              String valorStr = (String) getValor.invoke(right);
-              code.append("'").append(valorStr.replace("'", "''")).append("'");
-            } else {
-              translateExpressionNode(right, code);
-            }
-          } else {
-            // Outra operação
-            translateExpressionNode(content, code);
-          }
-        } else {
-          // Expressão normal
-          translateExpressionNode(content, code);
-        }
+        // Traduzir o conteúdo do print com tratamento especial para concatenação
+        translatePrintContent(content, code);
 
         code.append(");\n");
       } else if (node instanceof IfNode) {
@@ -450,10 +488,119 @@ public class PascalTranslator {
 
         code.append(")");
       }
-    } catch (
-
-    Exception e) {
+    } catch (Exception e) {
       code.append(indentation).append("{ Erro: ").append(e.getMessage()).append(" }\n");
+    }
+  }
+
+  /**
+   * Processa o conteúdo de um nó Print, incluindo concatenações
+   */
+  private static void translatePrintContent(ASTNode node, StringBuilder code) {
+    try {
+      if (node instanceof BinOpNode) {
+        // Se for operação binária, pode ser concatenação
+        Method getOpMethod = BinOpNode.class.getMethod("getOperator");
+        String op = (String) getOpMethod.invoke(node);
+
+        if ("+".equals(op)) {
+          // É uma concatenação
+          Method getLeftMethod = BinOpNode.class.getMethod("getLeft");
+          ASTNode left = (ASTNode) getLeftMethod.invoke(node);
+
+          Method getRightMethod = BinOpNode.class.getMethod("getRight");
+          ASTNode right = (ASTNode) getRightMethod.invoke(node);
+
+          // Em Pascal, concatenamos com múltiplos parâmetros separados por vírgula
+          translatePrintExpression(left, code);
+          code.append(", ");
+          translatePrintExpression(right, code);
+        } else {
+          // Outro tipo de operação
+          translateExpressionNode(node, code);
+        }
+      } else if (node instanceof Str) {
+        // String direta
+        Method getValor = Str.class.getMethod("getValor");
+        String valor = (String) getValor.invoke(node);
+        code.append("'").append(valor.replace("'", "''")).append("'");
+      } else {
+        // Outro tipo de nó
+        translateExpressionNode(node, code);
+      }
+    } catch (Exception e) {
+      code.append("{ Erro ao processar print: ").append(e.getMessage()).append(" }");
+    }
+  }
+
+  /**
+   * Traduz uma expressão para impressão, aplicando conversões necessárias
+   */
+  private static void translatePrintExpression(ASTNode node, StringBuilder code) {
+    try {
+      if (node instanceof Str) {
+        // String literal
+        Method getValor = Str.class.getMethod("getValor");
+        String valor = (String) getValor.invoke(node);
+        code.append("'").append(valor.replace("'", "''")).append("'");
+      } else if (node instanceof VarNode) {
+        // Variável - pode precisar de conversão
+        Method getName = VarNode.class.getMethod("getName");
+        String varName = normalize((String) getName.invoke(node));
+
+        // Verificar tipo da variável para possível conversão
+        String type = variableTypes.getOrDefault(varName, "Unknown");
+
+        switch (type) {
+          case "INTEGER":
+            code.append("IntToStr(").append(varName).append(")");
+            break;
+          case "DECIMAL":
+            code.append("FloatToStr(").append(varName).append(")");
+            break;
+          case "BOOLEAN":
+            code.append("BoolToStr(").append(varName).append(", 'luz', 'trevas')");
+            break;
+          case "STRING":
+            code.append(varName);
+            break;
+          default:
+            // Se não sabemos o tipo, usamos VarToStr para segurança
+            code.append("VarToStr(").append(varName).append(")");
+        }
+      } else if (node instanceof Num) {
+        // Número - precisa ser convertido para string
+        Method getTipo = Num.class.getMethod("getTipo");
+        Object tipoEnum = getTipo.invoke(node);
+        String tipoStr = tipoEnum.toString();
+
+        Method getValor = Num.class.getMethod("getValor");
+        String valor = (String) getValor.invoke(node);
+
+        if ("INTEGER".equals(tipoStr)) {
+          code.append("IntToStr(").append(valor).append(")");
+        } else {
+          code.append("FloatToStr(").append(valor).append(")");
+        }
+      } else if (node instanceof BooleanNode) {
+        // Booleano
+        Method getLexema = BooleanNode.class.getMethod("getLexema");
+        String lexema = (String) getLexema.invoke(node);
+
+        if ("luz".equals(lexema)) {
+          code.append("'true'");
+        } else {
+          code.append("'false'");
+        }
+      } else if (node instanceof BinOpNode) {
+        // Para operações binárias, recursivamente processamos
+        translatePrintContent(node, code);
+      } else {
+        // Para outros tipos, tentamos a tradução regular
+        translateExpressionNode(node, code);
+      }
+    } catch (Exception e) {
+      code.append("{ Erro na expressão print: ").append(e.getMessage()).append(" }");
     }
   }
 
@@ -477,6 +624,15 @@ public class PascalTranslator {
         String valor = (String) getValor.invoke(node);
         // Em Pascal, strings usam aspas simples e duplicam aspas internas
         code.append("'").append(valor.replace("'", "''")).append("'");
+      } else if (node instanceof BooleanNode) {
+        // Valor booleano
+        Method getLexema = BooleanNode.class.getMethod("getLexema");
+        String lexema = (String) getLexema.invoke(node);
+        if ("luz".equals(lexema)) {
+          code.append("True");
+        } else {
+          code.append("False");
+        }
       } else if (node instanceof BinOpNode) {
         // Operador binário
         Method getLeftMethod = BinOpNode.class.getMethod("getLeft");
@@ -488,20 +644,42 @@ public class PascalTranslator {
         Method getRightMethod = BinOpNode.class.getMethod("getRight");
         ASTNode right = (ASTNode) getRightMethod.invoke(node);
 
-        // Converter operadores para Pascal
-        String pascalOp = op;
-        if (op.equals("=="))
-          pascalOp = "=";
-        else if (op.equals("!="))
-          pascalOp = "<>";
-        else if (op.equals("%"))
-          pascalOp = "MOD";
+        // Verificar se é uma concatenação de strings
+        boolean isStringConcatenation = isStringExpression(left) || isStringExpression(right);
 
-        code.append("(");
-        translateExpressionNode(left, code);
-        code.append(" ").append(pascalOp).append(" ");
-        translateExpressionNode(right, code);
-        code.append(")");
+        if ("+".equals(op) && isStringConcatenation) {
+          // Concatenação de strings
+          if (isStringExpression(left)) {
+            translateExpressionNode(left, code);
+          } else {
+            // Converter número/booleano para string
+            applyStringConversion(left, code);
+          }
+
+          code.append(" + "); // Pascal usa + para concatenar strings
+
+          if (isStringExpression(right)) {
+            translateExpressionNode(right, code);
+          } else {
+            // Converter número/booleano para string
+            applyStringConversion(right, code);
+          }
+        } else {
+          // Converter operadores para Pascal
+          String pascalOp = op;
+          if (op.equals("=="))
+            pascalOp = "=";
+          else if (op.equals("!="))
+            pascalOp = "<>";
+          else if (op.equals("%"))
+            pascalOp = "MOD";
+
+          code.append("(");
+          translateExpressionNode(left, code);
+          code.append(" ").append(pascalOp).append(" ");
+          translateExpressionNode(right, code);
+          code.append(")");
+        }
       } else if (node instanceof CallExpr) {
         // Chamada de função como parte de expressão
         Field nameField = CallExpr.class.getDeclaredField("functionName");
@@ -525,6 +703,90 @@ public class PascalTranslator {
       }
     } catch (Exception e) {
       code.append("{ Erro na expressão: ").append(e.getMessage()).append(" }");
+    }
+  }
+
+  /**
+   * Verifica se um nó representa uma expressão string
+   */
+  private static boolean isStringExpression(ASTNode node) {
+    try {
+      if (node instanceof Str) {
+        return true;
+      } else if (node instanceof VarNode) {
+        Method getName = VarNode.class.getMethod("getName");
+        String varName = normalize((String) getName.invoke(node));
+        return "STRING".equals(variableTypes.getOrDefault(varName, ""));
+      } else if (node instanceof BinOpNode) {
+        Method getOpMethod = BinOpNode.class.getMethod("getOperator");
+        String op = (String) getOpMethod.invoke(node);
+
+        if ("+".equals(op)) {
+          Method getLeftMethod = BinOpNode.class.getMethod("getLeft");
+          Method getRightMethod = BinOpNode.class.getMethod("getRight");
+          ASTNode left = (ASTNode) getLeftMethod.invoke(node);
+          ASTNode right = (ASTNode) getRightMethod.invoke(node);
+
+          return isStringExpression(left) || isStringExpression(right);
+        }
+      }
+      return false;
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  /**
+   * Aplica a conversão necessária para transformar um valor em string
+   */
+  private static void applyStringConversion(ASTNode node, StringBuilder code) {
+    try {
+      if (node instanceof Num) {
+        Method getTipo = Num.class.getMethod("getTipo");
+        Object tipoEnum = getTipo.invoke(node);
+        String tipoStr = tipoEnum.toString();
+
+        code.append(tipoStr.equals("INTEGER") ? "IntToStr(" : "FloatToStr(");
+        translateExpressionNode(node, code);
+        code.append(")");
+      } else if (node instanceof BooleanNode) {
+        code.append("BoolToStr(");
+        translateExpressionNode(node, code);
+        code.append(", 'luz', 'trevas')");
+      } else if (node instanceof VarNode) {
+        Method getName = VarNode.class.getMethod("getName");
+        String varName = normalize((String) getName.invoke(node));
+
+        // Verificar tipo para escolher a conversão adequada
+        String type = variableTypes.getOrDefault(varName, "Unknown");
+
+        switch (type) {
+          case "INTEGER":
+            code.append("IntToStr(").append(varName).append(")");
+            break;
+          case "DECIMAL":
+            code.append("FloatToStr(").append(varName).append(")");
+            break;
+          case "BOOLEAN":
+            code.append("BoolToStr(").append(varName).append(", 'luz', 'trevas')");
+            break;
+          case "STRING":
+            code.append(varName); // Já é string, não precisa converter
+            break;
+          default:
+            code.append("VarToStr(").append(varName).append(")");
+        }
+      } else if (node instanceof CallExpr) {
+        // Para chamadas de função, envolvemos em VarToStr para garantir
+        code.append("VarToStr(");
+        translateExpressionNode(node, code);
+        code.append(")");
+      } else {
+        // Para outros casos, tentamos tradução direta
+        translateExpressionNode(node, code);
+      }
+    } catch (Exception e) {
+      code.append("{ Erro na conversão para string: ").append(e.getMessage()).append(" }");
     }
   }
 

@@ -106,7 +106,6 @@ public class Main {
         System.out.println("\nÁRVORE SINTÁTICA ABSTRATA (AST):");
         System.out.println("========================================");
         System.out.println(ast.toFormattedString());
-        System.out.println("========================================");
     }
 
     private static void printError(String message) {
