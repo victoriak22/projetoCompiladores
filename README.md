@@ -227,7 +227,6 @@ ListaComandos → Comando ListaComandos | ε
 
 Comando → Declaracao
         | Atribuicao
-        | EstruturaCondicionalSimples
         | EstruturaCondicionalBloco
         | EstruturaLoop
         | EstruturaEscolha
@@ -251,6 +250,7 @@ ComandoRetorno → amen Expressao
 ComandoParar → parar
 
 Impressao → = Expressao
+          | = Expressao Impressao  -- Para suportar múltiplas impressões em sequência
 
 Expressao → Valor
           | Expressao OperadorAritmetico Expressao
@@ -274,14 +274,14 @@ ChamadaFuncao → :identificador ( ArgumentosFuncao )
 ArgumentosFuncao → ListaArgumentos | ε
 ListaArgumentos → Expressao | Expressao , ListaArgumentos
 
-EstruturaCondicionalSimples → se ( Expressao ) : Comando
-EstruturaCondicionalBloco → se ( Expressao ) : { ListaComandos }
+EstruturaCondicionalBloco → se ( Expressao ) { ListaComandos } ListaSenaoSe ListaSenao
 
-SenaoSe → senaose ( Expressao ) : Comando
-        | senaose ( Expressao ) : { ListaComandos }
+ListaSenaoSe → SenaoSe ListaSenaoSe | ε
 
-Senao → senao : Comando
-      | senao : { ListaComandos }
+SenaoSe → senaose ( Expressao ) { ListaComandos }
+
+ListaSenao → Senao | ε
+Senao → senao { ListaComandos }
 
 EstruturaLoop → loop ( Atribuicao ; Expressao ; Atribuicao ) { ListaComandos }
               | enquanto ( Expressao ) { ListaComandos }
@@ -291,10 +291,11 @@ EstruturaEscolha → escolha ( Expressao ) {
                      CasoPadrao
                    }
 
-ListaCasos → caso Valor : ListaComandos ListaCasos | ε
-CasoPadrao → padrao : ListaComandos | ε
+ListaCasos → caso Valor { ListaComandos } ListaCasos | ε
 
-TratamentoErros → tente { ListaComandos } capturar ( :identificador ) : ListaComandos
+CasoPadrao → padrao { ListaComandos } | ε
+
+TratamentoErros → tente { ListaComandos } capturar ( :identificador ) { ListaComandos }
 ```
 
 ---
