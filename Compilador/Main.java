@@ -9,6 +9,7 @@ import java.util.List;
 
 import Compilador.Lexico.Lexer;
 import Compilador.Lexico.Token;
+import Compilador.Semantico.SemanticAnalyzer;
 import Compilador.Sintatico.Parser;
 import Compilador.Tradutor.PascalTranslator;
 import Compilador.ast.ASTNode;
@@ -72,6 +73,19 @@ public class Main {
 
         if (ast != null) {
             printAst(ast);
+
+            // Análise Semântica (NOVO)
+            printHeader("ANALISE SEMANTICA");
+            SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
+            List<String> semanticErrors = semanticAnalyzer.analyze(ast);
+            
+            if (!semanticErrors.isEmpty()) {
+                System.out.println(semanticAnalyzer.formatErrors());
+                printError("Erros semânticos encontrados, abortando compilação.");
+                return null;
+            } else {
+                System.out.println("[OK] Análise semântica concluída sem erros.");
+            }
 
             // Tradução para Pascal
             printHeader("TRADUÇÃO PARA PASCAL");
