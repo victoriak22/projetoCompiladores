@@ -480,52 +480,7 @@ deus :maiorMenor -> :a, :b {
 ```
 ## ❌ Exemplos de Erros
 
-### Erro 1 – Falta do : no nome da variável
-
-```psalms
-deus :erroVariavel -> :x {
-  resultado -> :x * 2
-  amen :resultado
-}
-
-🧠 Erro: resultado está sendo usado sem : antes, o que viola a regra da linguagem, que exige prefixo : para identificadores.
-```
-### Erro 2 – Parênteses incorretos na estrutura se
-
-```psalms
-se :x > 0 {
-  p("Positivo")
-}
-
-🧠 Erro: A estrutura se deve conter a expressão dentro de parênteses, conforme definido na GLC.
-```
-### Erro 3 – Chamada de função sem dois-pontos
-
-```psalms
-resultado -> multiplicar(2, 3)
-
-🧠 Erro: O nome da função chamada deve começar com : (por exemplo, :multiplicar), segundo as regras de sintaxe.
-```
-### Erro 4 – Bloco loop mal formatado
-
-```psalms
-loop(:i = 0; :i < 10; :i = :i + 1){
-  p(:i)
-}
-
-🧠 Erro: Atribuições na linguagem usam -> em vez de =.
-```
-### Erro 5 – Função com amen fora de escopo
-
-```psalms
-deus :funcaoSemRetorno -> :a {
-  :b -> :a + 1
-}
-amen :b
-
-🧠 Erro: O amen precisa estar dentro da função onde o valor é retornado. Fora dela, não faz sentido sem contexto de função.
-```
-### Erro 6 – Identificador sem dois-pontos
+### Erro Léxico – Identificador sem dois-pontos
 
 ```psalms
 deus multiplicar -> :a, :b {
@@ -533,53 +488,27 @@ deus multiplicar -> :a, :b {
   amen :resultado
 }
 
-🧠 Erro: multiplicar não está precedido de :. Todos os identificadores devem começar com :.
+🧠 Erro: O nome multiplicar não está precedido por :. Todos os identificadores na linguagem PSALMS devem começar com : para serem reconhecidos como válidos.
 ```
-### Erro 7 – String sem aspas finais
+### Erro Sintático – Condicional sem parênteses
 
 ```psalms
-p("Mensagem sem fim)
-
-🧠 Erro: A string foi iniciada com " mas não foi fechada corretamente.
-```
-### Erro 8 – Caractere inválido em identificador
-
-```psalms
-:var@1 -> 10
-
-🧠 Erro: O caractere @ não é permitido em identificadores. Apenas letras, números e _ são aceitos após :.
-```
-### Erro 9 – Palavra reservada mal escrita
-
-```psalms
-deuss :erro -> :x {
-  amen :x
+se :x > 0 {
+  p("Positivo")
 }
 
-🧠 Erro: deuss não é uma palavra reservada. O correto é deus.
+🧠 Erro: A estrutura se requer que a expressão condicional esteja entre parênteses.
 ```
-### Erro 10 – Comentário mal formado
+### Erro Semântico – Divisão por zero
 
 ```psalms
---Este comentário está colado com o texto
-
-🧠 Erro: Os comentários devem ter espaço após --. Sem esse espaço, o analisador pode interpretar como token inválido.
-```
-### Erro 12 – Número mal formatado
-
-```psalms
-:numero -> 12.34.56
-
-🧠 Erro: Um número não pode ter mais de um ponto decimal. Isso invalida o token numérico.
-```
-### Erro 13 – Nome de função começando com número
-
-```psalms
-deus :123multiplicar -> :a, :b {
-  amen :a * :b
+deus :dividir -> :a, :b {
+  amen :a / :b
 }
 
-🧠 Erro: Identificadores não podem começar com dígitos, mesmo após :.
+:resultado -> :dividir(10, 0)
+
+🧠 Erro: Mesmo que o código seja léxica e sintaticamente válido, há um erro semântico: a divisão por zero.
 ```
 
 Para mais exemplos, consulte o arquivo `exemplos-psalms.psalms` incluído no projeto.
