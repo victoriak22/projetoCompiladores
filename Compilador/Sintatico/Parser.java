@@ -132,7 +132,7 @@ public class Parser {
         ASTNode print = comandoPrint();
         if (print != null)
             return print;
-            
+
         // 1.1 Comando de input (novo)
         ASTNode input = comandoInput();
         if (input != null)
@@ -178,7 +178,7 @@ public class Parser {
             return cmd;
         if ((cmd = comentario()) != null)
             return cmd;
-        
+
         // 6. Token não reconhecido
         if (token != null) {
             System.out.println("Token não reconhecido como comando: " + token.getLexema());
@@ -186,7 +186,7 @@ public class Parser {
         }
         return null;
     }
-    
+
     /**
      * Processa um comando de entrada (leitura)
      * Formato: $ler(:variavel)
@@ -197,16 +197,16 @@ public class Parser {
             String lexema = token.getLexema();
             int inicio = lexema.indexOf("(") + 1;
             int fim = lexema.indexOf(")");
-            
+
             if (inicio > 0 && fim > inicio) {
                 String nomeVar = lexema.substring(inicio, fim);
-                
+
                 // Cria o nó de variável
                 VarNode var = new VarNode(nomeVar);
-                
+
                 // Avança o token
                 avancaToken();
-                
+
                 // Retorna o nó de input
                 return new InputNode(var);
             } else {
@@ -282,7 +282,7 @@ public class Parser {
 
         return new ReturnNode(expr);
     }
-    
+
     /**
      * Método para processar o comando "parar" (break)
      */
@@ -389,12 +389,12 @@ public class Parser {
         if (node == null)
             return null;
 
-        if (token != null && (token.getLexema().equals("==") || 
-                          token.getLexema().equals("!=") ||
-                          token.getLexema().equals(">") ||
-                          token.getLexema().equals("<") ||
-                          token.getLexema().equals(">=") ||
-                          token.getLexema().equals("<="))) {
+        if (token != null && (token.getLexema().equals("==") ||
+                token.getLexema().equals("!=") ||
+                token.getLexema().equals(">") ||
+                token.getLexema().equals("<") ||
+                token.getLexema().equals(">=") ||
+                token.getLexema().equals("<="))) {
             String op = token.getLexema();
             avancaToken();
             ASTNode right = expressaoAritmetica();
@@ -575,7 +575,7 @@ public class Parser {
         if (token == null || !token.getLexema().equals("se")) {
             return null;
         }
-        
+
         avancaToken(); // Consome "se"
 
         // Verificamos a condição
@@ -898,10 +898,10 @@ public class Parser {
         return null;
     }
 
-/**
-    * Versão atualizada para processar comandos de impressão
-    * Suporta tanto o formato antigo "=" quanto o novo "p()"
-    */
+    /**
+     * Versão atualizada para processar comandos de impressão
+     * Suporta tanto o formato antigo "=" quanto o novo "p()"
+     */
     public ASTNode comandoPrint() {
         // Verifica formato novo (começando com p)
         if (token != null && token.getTipo().equals("PRINT")) {
@@ -910,11 +910,11 @@ public class Parser {
                 String lexema = token.getLexema();
                 int inicio = lexema.indexOf("(") + 1;
                 int fim = lexema.lastIndexOf(")");
-                
+
                 if (inicio > 0 && fim > inicio) {
                     String conteudo = lexema.substring(inicio, fim);
                     ASTNode printContent;
-                    
+
                     // Verifica se é string literal ou variável
                     if (conteudo.startsWith("\"") && conteudo.endsWith("\"")) {
                         // String literal (remove as aspas)
@@ -923,10 +923,10 @@ public class Parser {
                         // Variável ou expressão
                         printContent = new VarNode(conteudo);
                     }
-                    
+
                     // Avança o token
                     avancaToken();
-                    
+
                     return new PrintNode(printContent);
                 }
             } else {
@@ -935,11 +935,11 @@ public class Parser {
                 avancaToken();
                 String conteudo = printToken.getLexema().substring(1); // Remove o '='
                 ASTNode printContent = new Str(conteudo);
- 
+
                 // Verificar se há concatenação (operador +)
                 if (token != null && token.getLexema().equals("+")) {
                     avancaToken(); // Consumir o token "+"
- 
+
                     // Ler a variável após o operador +
                     ASTNode varNode = valor();
                     if (varNode != null) {
@@ -947,58 +947,58 @@ public class Parser {
                         return new PrintNode(new BinOpNode(printContent, "+", varNode));
                     }
                 }
- 
+
                 // Se não houver concatenação, retorna apenas o conteúdo
                 return new PrintNode(printContent);
             }
         }
         return null;
     }
- 
+
     public ASTNode parseExpression() {
         ASTNode node = parseTerm();
- 
+
         while (token != null && (token.getLexema().equals("+") || token.getLexema().equals("-"))) {
             String op = token.getLexema();
             avancaToken();
             ASTNode right = parseTerm();
             node = new BinOpNode(node, op, right);
         }
- 
+
         return node;
     }
- 
+
     private ASTNode parseTerm() {
         ASTNode node = parseFactor();
- 
+
         while (token != null && (token.getLexema().equals("*") || token.getLexema().equals("/"))) {
             String op = token.getLexema();
             avancaToken();
             ASTNode right = parseFactor();
             node = new BinOpNode(node, op, right);
         }
- 
+
         return node;
     }
- 
+
     private ASTNode parseFactor() {
         if (token == null)
             return null;
- 
+
         // Números inteiros ou decimais
         if (token.getTipo().equals("INTEGER") || token.getTipo().equals("DECIMAL")) {
             Num num = new Num(token.getLexema(), token.getTipo());
             avancaToken();
             return num;
         }
- 
+
         // Variáveis (começam com :)
         if (token.getTipo().equals("ID") && token.getLexema().startsWith(":")) {
             VarNode var = new VarNode(token.getLexema());
             avancaToken();
             return var;
         }
- 
+
         // Parênteses para agrupamento
         if (token.getLexema().equals("(")) {
             avancaToken();
@@ -1010,37 +1010,37 @@ public class Parser {
             avancaToken();
             return expr;
         }
- 
+
         erro("Fator inválido: " + token.getLexema());
         return null;
     }
- 
+
     public ASTNode chamadaFuncMat() {
         System.out.println("Verificando chamada de função matemática...");
- 
+
         Token funcToken = matchT("MULTIPLY_FUNC");
         if (funcToken == null)
             funcToken = matchT("SOMAR_FUNC");
         if (funcToken == null)
             funcToken = matchT("DIVIDIR_FUNC");
- 
+
         if (funcToken == null)
             return null; // Não é uma função matemática
- 
+
         if (matchL("(") == null) {
             erro("Esperava '(' após função matemática");
             return null;
         }
- 
+
         List<ASTNode> args = argumentos(); // argumentos() deve retornar List<ASTNode>
         if (args == null || matchL(")") == null) {
             erro("Argumentos inválidos na função matemática");
             return null;
         }
- 
+
         return new MathFuncNode(funcToken.getLexema(), args);
     }
- 
+
     private boolean consumirDelimitador(String delimitador) {
         if (token != null && token.getLexema().equals(delimitador)) {
             System.out.println("Consumindo delimitador: " + delimitador);
@@ -1049,17 +1049,17 @@ public class Parser {
         }
         return false;
     }
- 
+
     enum LogLevel {
         DEBUG, INFO, ERROR
     }
- 
+
     private LogLevel logLevel = LogLevel.INFO;
- 
+
     private void log(LogLevel level, String message) {
         if (level.ordinal() >= logLevel.ordinal()) {
             String coloredMessage = message;
- 
+
             switch (level) {
                 case ERROR:
                     coloredMessage = ANSI_RED + message + ANSI_RESET;
@@ -1071,11 +1071,11 @@ public class Parser {
                     coloredMessage = ANSI_YELLOW + message + ANSI_RESET;
                     break;
             }
- 
+
             System.out.println(getIndent() + coloredMessage);
         }
     }
-    
+
     /**
      * Classe para representar um nó de break (parar) na AST
      */
@@ -1085,4 +1085,4 @@ public class Parser {
             return indent + (isLast ? "└── " : "├── ") + "Break\n";
         }
     }
- }
+}

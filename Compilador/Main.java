@@ -72,26 +72,23 @@ public class Main {
 
         if (ast != null) {
             printAst(ast);
+
+            // Tradução para Pascal
+            printHeader("TRADUÇÃO PARA PASCAL");
+            String pascalCode = PascalTranslator.translate(ast);
+            System.out.println(pascalCode);
+
+            // Salvar em arquivo
+            try (FileWriter writer = new FileWriter(OUTPUT_FILE)) {
+                writer.write(pascalCode);
+            }
+            System.out.println("[OK] Código Pascal salvo em: " + OUTPUT_FILE);
+
+            return OUTPUT_FILE;
         } else {
             printError("Erros sintáticos encontrados");
-
-            // // Tradução para Pascal
-            // printHeader("TRADUÇÃO PARA PASCAL");
-            // String pascalCode = PascalTranslator.translate(ast);
-            // System.out.println(pascalCode);
-
-            // // Salvar em arquivo
-            // try (FileWriter writer = new FileWriter(OUTPUT_FILE)) {
-            // writer.write(pascalCode);
-            // }
-            // System.out.println("[OK] Código Pascal salvo em: " + OUTPUT_FILE);
-            // } else {
-            // printError("Erros sintáticos encontrados");
-            // }
+            return null;
         }
-
-        // return OUTPUT_FILE;
-        return "true";
     }
 
     private static void printHeader(String title) {

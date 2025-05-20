@@ -4,11 +4,17 @@ USES
   SysUtils; // Para conversões String <-> número
 
 VAR
-  idade: Integer;
+  resultadoMultiplicacao: String;
+  resultado: Double;
+
+FUNCTION multiplicar(A: Variant; B: Variant): Variant;
+BEGIN
+  resultado := (A * B);
+  multiplicar := resultado;
+END;
 
 BEGIN
-  idade := 19;
-  WriteLn('''vc tem 19''');
-  WriteLn('''Maior de idade''');
-  WriteLn('''Menor de idade''');
+  resultadoMultiplicacao := multiplicar;
+  WriteLn('Resultado da multiplicação:');
+  WriteLn(VarToStr(resultadoMultiplicacao));
 END.
