@@ -249,8 +249,7 @@ ComandoRetorno → amen Expressao
 
 ComandoParar → parar
 
-Impressao → = Expressao
-          | = Expressao Impressao  -- Para suportar múltiplas impressões em sequência
+Impressao → p ( Expressao )
 
 Expressao → Valor
           | Expressao OperadorAritmetico Expressao
