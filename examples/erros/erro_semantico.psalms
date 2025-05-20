@@ -1,0 +1,5 @@
+deus :dividir -> :a, :b {
+  amen :a / :b
+}
+
+:resultado -> :dividir(10, 0)
