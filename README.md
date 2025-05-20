@@ -11,6 +11,7 @@
   - [Funções](#funções)
   - [Chamada de Funções](#chamada-de-funções)
   - [Impressão](#impressão)
+  - [Leitura de Entrada](#leitura-de-entrada)
 - [🔄 Estruturas de Controle](#-estruturas-de-controle)
   - [Condicionais](#condicionais)
   - [Loops](#loops)
@@ -21,6 +22,7 @@
   - [Exemplo 1: Função de Multiplicação](#exemplo-1-função-simples-de-multiplicação)
   - [Exemplo 2: Loop com Condicional](#exemplo-2-loop-com-condicional)
   - [Exemplo 3: Calculadora Simples](#exemplo-3-calculadora-simples)
+  - [Exemplo 4: Programa com Entrada do Usuário](#exemplo-4-programa-com-entrada-do-usuário)
 - [🚀 Como Usar o Compilador](#-como-usar-o-compilador)
 - [📚 Operadores Suportados](#-operadores-suportados)
   - [Aritméticos](#aritméticos)
@@ -70,7 +72,8 @@ A linguagem **PSALMS** foi projetada com uma forte influência de palavras que f
 | `case`               | `caso`                | Caso em estrutura escolha       |
 | `default`            | `padrao`              | Caso padrão                     |
 | `function`           | `deus`                | Define uma função               |
-| `System.out.println` | `=`                   | Imprime na saída padrão         |
+| `System.out.println` | `p()`                 | Imprime na saída padrão         |
+| `Scanner.nextLine`   | `$ler()`              | Lê entrada do usuário           |
 
 ---
 
@@ -122,12 +125,24 @@ deus :soma -> :a, :b {
 
 ### Impressão
 
-Para imprimir valores, use a sintaxe `=`:
+Para imprimir valores, use a sintaxe `p()`:
 
 ```psalms
 p("Texto a ser exibido")
 p("Resultado: ")
 p(:variavel)
+```
+
+### Leitura de Entrada
+
+Para ler valores do usuário, use a sintaxe `$ler()`:
+
+```psalms
+p("Digite seu nome:")
+$ler(:nome)
+
+p("Digite sua idade:")
+$ler(:idade)
 ```
 
 ---
@@ -139,9 +154,8 @@ p(:variavel)
 ```psalms
 se(:idade >= 18){
   p("Maior de idade")
-senao{
+} senao {
   p("Menor de idade")
-  }
 }
 ```
 
@@ -150,13 +164,10 @@ Com múltiplas condições:
 ```psalms
 se(:nota >= 7){
   p("Aprovado")
-
-senaose(:nota >= 5){
+} senaose(:nota >= 5){
   p("Recuperação")
-}
-senao{
+} senao {
   p("Reprovado")
-}
 }
 ```
 
@@ -209,11 +220,10 @@ tente {
   :resultado -> :dividir(10, 0)
   p("Resultado: ")
   p(:resultado)
-}
-capturar(:erro){
+} capturar(:erro) {
   p("Ocorreu um erro: ")
   p(:erro)
-  }
+}
 ```
 
 ---
@@ -232,6 +242,7 @@ Comando → Declaracao
         | EstruturaEscolha
         | ComandoRetorno
         | Impressao
+        | LeituraEntrada
         | TratamentoErros
         | ChamadaFuncao
         | Comentario
@@ -250,6 +261,8 @@ ComandoRetorno → amen Expressao
 ComandoParar → parar
 
 Impressao → p ( Expressao )
+
+LeituraEntrada → $ler ( :identificador )
 
 Expressao → Valor
           | Expressao OperadorAritmetico Expressao
@@ -327,13 +340,12 @@ deus :listarNumeros -> :limite {
     se(:i % 2 == 0){
       p("Número par: ")
       p(:i)
-    senao{
+    } senao {
       p("Número ímpar: ")
       p(:i)
     }
   }
-}
-
+  
   amen :limite
 }
 
@@ -344,26 +356,25 @@ deus :listarNumeros -> :limite {
 ### Exemplo 3: Calculadora Simples
 
 ```psalms
-deus :calculadora -> :operacao, :a, :b{
-  escolha(:operacao){
-    caso "soma"{
+deus :calculadora -> :operacao, :a, :b {
+  escolha(:operacao) {
+    caso "soma" {
       amen :a + :b
     }
-    caso "subtracao"{
+    caso "subtracao" {
       amen :a - :b
     }
-    caso "multiplicacao"{
+    caso "multiplicacao" {
       amen :a * :b
     }
-    caso "divisao"{
-      se(:b == 0){
+    caso "divisao" {
+      se(:b == 0) {
         amen "Erro: Divisão por zero"
-      }
-      senao{
+      } senao {
         amen :a / :b
       }
     }
-    padrao{
+    padrao {
       amen "Operação inválida"
     }
   }
@@ -383,13 +394,55 @@ p(:resMultiplicacao)
 p("Divisão: ")
 p(:resDivisao)
 ```
-### Exemplo 4: Loop que imprime até o número 10
+
+### Exemplo 4: Programa com Entrada do Usuário
+
+```psalms
+-- Programa simples com entrada, loop e condicionais em PSALMS
+
+:nome -> ""
+:idade -> 0
+
+-- Solicitação de dados ao usuário
+p("Digite seu nome:")
+$ler(:nome)
+
+p("Digite sua idade:")
+$ler(:idade)
+
+-- Saudação e exibição das informações
+p("Olá!")
+p("Seu nome é:")
+p(:nome)
+p("Sua idade é:")
+p(:idade)
+p("Anos")
+
+-- Verifica a idade com condicional
+se(:idade >= 18) {
+    p("Você é maior de idade.")
+} senao {
+    p("Você é menor de idade.")
+}
+
+-- Loop para contar até 5
+p("Contagem até 5:")
+:contador -> 1
+enquanto(:contador <= 5) {
+    p(:contador)
+    :contador -> :contador + 1
+}
+
+p("Fim do programa!")
+```
+
+### Exemplo 5: Loop que imprime até o número 10
 
 ```psalms
 deus :ateDez {
   :i -> 1
 
-  loop(:i -> 1; :i <= 10; :i -> :i + 1){
+  loop(:i -> 1; :i <= 10; :i -> :i + 1) {
     p("Número atual: ")
     p(:i)
   }
@@ -400,16 +453,16 @@ deus :ateDez {
 -- Chamada da função
 :resultado -> :ateDez()
 ```
-### Exemplo 5: Função que retorna o maior e o menor entre dois números
+
+### Exemplo 6: Função que retorna o maior e o menor entre dois números
 
 ```psalms
 deus :maiorMenor -> :a, :b {
   -- Verifica qual é o maior
-  se(:a > :b){
+  se(:a > :b) {
     :maior -> :a
     :menor -> :b
-  }
-  senao{
+  } senao {
     :maior -> :b
     :menor -> :a
   }
@@ -426,7 +479,7 @@ deus :maiorMenor -> :a, :b {
 :resultado -> :maiorMenor(8, 3)
 ```
 
-Para mais exemplos, consulte o arquivo `exemplos_psalms.psalms` incluído no projeto.
+Para mais exemplos, consulte o arquivo `exemplos-psalms.psalms` incluído no projeto.
 
 ---
 

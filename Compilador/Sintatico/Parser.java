@@ -929,27 +929,6 @@ public class Parser {
 
                     return new PrintNode(printContent);
                 }
-            } else {
-                // Formato antigo: ="conteúdo" ou =variavel
-                Token printToken = token;
-                avancaToken();
-                String conteudo = printToken.getLexema().substring(1); // Remove o '='
-                ASTNode printContent = new Str(conteudo);
-
-                // Verificar se há concatenação (operador +)
-                if (token != null && token.getLexema().equals("+")) {
-                    avancaToken(); // Consumir o token "+"
-
-                    // Ler a variável após o operador +
-                    ASTNode varNode = valor();
-                    if (varNode != null) {
-                        // Criar nó de concatenação
-                        return new PrintNode(new BinOpNode(printContent, "+", varNode));
-                    }
-                }
-
-                // Se não houver concatenação, retorna apenas o conteúdo
-                return new PrintNode(printContent);
             }
         }
         return null;
