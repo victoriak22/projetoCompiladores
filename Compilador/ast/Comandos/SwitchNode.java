@@ -18,14 +18,11 @@ public class SwitchNode extends ASTNode {
     public String toFormattedString(String indent, boolean isLast) {
         StringBuilder sb = new StringBuilder();
         
-        // Switch header
         sb.append(indent).append(isLast ? "└── " : "├── ").append("Switch\n");
         
-        // Expression
         sb.append(indent).append("│   ").append("└── ").append("Expressao:\n")
-          .append(expressao.toFormattedString(indent + "    ", false));  // Indentation for child, not last
+          .append(expressao.toFormattedString(indent + "    ", false));
         
-        // Cases
         for (int i = 0; i < casos.size(); i++) {
             boolean isLastCase = (i == casos.size() - 1) && (padrao == null);
             sb.append(indent)
@@ -34,7 +31,6 @@ public class SwitchNode extends ASTNode {
               .append(casos.get(i).toFormattedString(indent + "    ", isLastCase));
         }
         
-        // Default case
         if (padrao != null) {
             sb.append(indent).append("└── ").append("Default:\n")
               .append(padrao.toFormattedString(indent + "    ", true));
@@ -45,6 +41,6 @@ public class SwitchNode extends ASTNode {
 
     @Override
     public String toString() {
-        return toFormattedString("", true);  // Use the root level (no indent) and mark it as the last node
+        return toFormattedString("", true);
     }
 }

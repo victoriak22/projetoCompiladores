@@ -6,10 +6,6 @@ import Compilador.ast.Comandos.*;
 import Compilador.ast.Expressoes.*;
 import Compilador.ast.Expressoes.Variaveis.*;
 
-/**
- * Analisador Semântico para a linguagem PSALMS.
- * Realiza verificações semânticas durante a análise da AST.
- */
 public class SemanticAnalyzer {
     private SymbolTable symbolTable;
     private List<String> errors;
@@ -21,11 +17,7 @@ public class SemanticAnalyzer {
         this.currentFunction = null;
     }
 
-    /**
-     * Analisa a AST em busca de erros semânticos.
-     * @param ast Raiz da árvore de sintaxe abstrata.
-     * @return Lista de erros semânticos encontrados.
-     */
+    // ANALISA ARVORE
     public List<String> analyze(ASTNode ast) {
         errors.clear();
         symbolTable.clear();
@@ -33,12 +25,10 @@ public class SemanticAnalyzer {
         return errors;
     }
 
-    /**
-     * Visita recursivamente os nós da AST.
-     * @param node Nó atual.
-     */
+    // visita nos
     private void visitNode(ASTNode node) {
-        if (node == null) return;
+        if (node == null)
+            return;
 
         try {
             if (node instanceof BlockNode) {
@@ -130,14 +120,14 @@ public class SemanticAnalyzer {
 
                 // Verifica se é uma variável existente ou uma declaração
                 if (!symbolTable.exists(varName)) {
-                    // Nova variável - adiciona à tabela de símbolos com tipo inferido
+                    // adiciona à tabela de símbolos com tipo inferido
                     symbolTable.add(varName, rhsType, currentFunction);
                 } else {
-                    // Variável existente - verifica compatibilidade de tipos
+                    // verifica compatibilidade de tipos
                     String lhsType = symbolTable.getType(varName);
                     if (!isTypeCompatible(lhsType, rhsType)) {
-                        errors.add("Erro: Incompatibilidade de tipos na atribuição. Variável '" + 
-                                  varName + "' é do tipo " + lhsType + ", mas recebeu valor do tipo " + rhsType);
+                        errors.add("Erro: Incompatibilidade de tipos na atribuição. Variável '" +
+                                varName + "' é do tipo " + lhsType + ", mas recebeu valor do tipo " + rhsType);
                     }
                 }
             } else {
@@ -174,7 +164,7 @@ public class SemanticAnalyzer {
             for (ParamNode param : params) {
                 paramTypes.add("ANY"); // Parâmetros são implicitamente de tipo ANY
             }
-            symbolTable.addFunction(name, "ANY", paramTypes); // Retorno também é implicitamente ANY
+            symbolTable.addFunction(name, "ANY", paramTypes);
 
             // Salva o nome da função atual para o contexto das variáveis locais
             String previousFunction = currentFunction;
@@ -234,8 +224,8 @@ public class SemanticAnalyzer {
             // Verifica número de argumentos
             List<String> paramTypes = symbolTable.getFunctionParamTypes(funcName);
             if (paramTypes.size() != args.size()) {
-                errors.add("Erro: Número incorreto de argumentos na chamada à função '" + 
-                          funcName + "'. Esperado: " + paramTypes.size() + ", Recebido: " + args.size());
+                errors.add("Erro: Número incorreto de argumentos na chamada à função '" +
+                        funcName + "'. Esperado: " + paramTypes.size() + ", Recebido: " + args.size());
                 return;
             }
 
@@ -243,8 +233,6 @@ public class SemanticAnalyzer {
             for (ASTNode arg : args) {
                 visitNode(arg);
             }
-
-            // Verificação de tipos de argumentos está simplificada, pois PSALMS usa tipagem dinâmica
         } catch (Exception e) {
             errors.add("Erro ao analisar chamada de função: " + e.getMessage());
         }
@@ -256,9 +244,9 @@ public class SemanticAnalyzer {
             name = name.substring(1);
         }
 
-        // Verifica se a variável foi declarada
-        if (!symbolTable.exists(name)) {
-            errors.add("Erro: Variável '" + name + "' utilizada mas não declarada");
+        // Verifica se o identificador existe como variável ou como função
+        if (!symbolTable.exists(name) && !symbolTable.functionExists(name)) {
+            errors.add("Erro: Identificador '" + name + "' utilizado mas não declarado como variável ou função");
         }
     }
 
@@ -365,13 +353,13 @@ public class SemanticAnalyzer {
             // Visita cada parte do for
             visitNode(inic);
             visitNode(cond);
-            
+
             // Verifica se a condição é booleana
             String condType = getExpressionType(cond);
             if (!condType.equals("BOOLEAN") && !condType.equals("ANY")) {
                 errors.add("Erro: Condição do 'loop' deve ser booleana, mas recebeu: " + condType);
             }
-            
+
             visitNode(inc);
             visitNode(corpo);
         } catch (Exception e) {
@@ -414,8 +402,8 @@ public class SemanticAnalyzer {
 
                 // Verificação simplificada de compatibilidade de tipos entre expressão e caso
                 if (!isTypeCompatible(exprType, valorType) && !exprType.equals("ANY") && !valorType.equals("ANY")) {
-                    errors.add("Erro: Incompatibilidade de tipos em 'escolha'. Expressão é do tipo " + 
-                              exprType + ", mas caso é do tipo " + valorType);
+                    errors.add("Erro: Incompatibilidade de tipos em 'escolha'. Expressão é do tipo " +
+                            exprType + ", mas caso é do tipo " + valorType);
                 }
 
                 // Visita o corpo do caso
@@ -516,13 +504,10 @@ public class SemanticAnalyzer {
         }
     }
 
-    /**
-     * Obtém o tipo de uma expressão.
-     * @param node Nó da expressão.
-     * @return Tipo da expressão (INTEGER, DECIMAL, BOOLEAN, STRING, ANY).
-     */
+    // OBTEM O TIPO DA EXPRESSÃO
     private String getExpressionType(ASTNode node) {
-        if (node == null) return "ANY";
+        if (node == null)
+            return "ANY";
 
         try {
             if (node instanceof Num) {
@@ -553,8 +538,8 @@ public class SemanticAnalyzer {
                 String rightType = getExpressionType(right);
 
                 // Operadores de comparação -> BOOLEAN
-                if (op.equals("==") || op.equals("!=") || op.equals(">") || 
-                    op.equals("<") || op.equals(">=") || op.equals("<=")) {
+                if (op.equals("==") || op.equals("!=") || op.equals(">") ||
+                        op.equals("<") || op.equals(">=") || op.equals("<=")) {
                     return "BOOLEAN";
                 }
                 // Operadores lógicos -> BOOLEAN
@@ -597,7 +582,7 @@ public class SemanticAnalyzer {
                 if (funcName.startsWith(":")) {
                     funcName = funcName.substring(1);
                 }
-                
+
                 if (symbolTable.functionExists(funcName)) {
                     return symbolTable.getFunctionReturnType(funcName);
                 }
@@ -610,12 +595,7 @@ public class SemanticAnalyzer {
         return "ANY";
     }
 
-    /**
-     * Verifica compatibilidade entre tipos.
-     * @param type1 Primeiro tipo.
-     * @param type2 Segundo tipo.
-     * @return true se os tipos são compatíveis.
-     */
+    // VERIFICA COMPATIBILIDADE DE TIPOS
     private boolean isTypeCompatible(String type1, String type2) {
         // Se algum for ANY, consideramos compatível (tipagem dinâmica)
         if (type1.equals("ANY") || type2.equals("ANY")) {
@@ -636,12 +616,6 @@ public class SemanticAnalyzer {
         return false;
     }
 
-    /**
-     * Verifica compatibilidade de tipos para operadores específicos.
-     * @param leftType Tipo do operando esquerdo.
-     * @param rightType Tipo do operando direito.
-     * @param op Operador.
-     */
     private void checkOperatorTypeCompatibility(String leftType, String rightType, String op) {
         // Operações com tipos ANY são sempre permitidas
         if (leftType.equals("ANY") || rightType.equals("ANY")) {
@@ -657,10 +631,10 @@ public class SemanticAnalyzer {
         // Operadores relacionais
         if (op.equals(">") || op.equals("<") || op.equals(">=") || op.equals("<=")) {
             // Apenas números e strings podem ser comparados
-            if (!(isNumeric(leftType) && isNumeric(rightType)) && 
-                !(leftType.equals("STRING") && rightType.equals("STRING"))) {
-                errors.add("Erro: Operador '" + op + "' não pode ser aplicado entre tipos " + 
-                          leftType + " e " + rightType);
+            if (!(isNumeric(leftType) && isNumeric(rightType)) &&
+                    !(leftType.equals("STRING") && rightType.equals("STRING"))) {
+                errors.add("Erro: Operador '" + op + "' não pode ser aplicado entre tipos " +
+                        leftType + " e " + rightType);
             }
             return;
         }
@@ -669,8 +643,8 @@ public class SemanticAnalyzer {
         if (op.equals("&&") || op.equals("||")) {
             // Apenas booleanos
             if (!leftType.equals("BOOLEAN") || !rightType.equals("BOOLEAN")) {
-                errors.add("Erro: Operador '" + op + "' deve ser aplicado entre booleanos, mas recebeu " + 
-                          leftType + " e " + rightType);
+                errors.add("Erro: Operador '" + op + "' deve ser aplicado entre booleanos, mas recebeu " +
+                        leftType + " e " + rightType);
             }
             return;
         }
@@ -681,11 +655,11 @@ public class SemanticAnalyzer {
             if (leftType.equals("STRING") || rightType.equals("STRING")) {
                 return;
             }
-            
+
             // Adição numérica
             if (!isNumeric(leftType) || !isNumeric(rightType)) {
-                errors.add("Erro: Operador '+' não pode ser aplicado entre tipos " + 
-                          leftType + " e " + rightType);
+                errors.add("Erro: Operador '+' não pode ser aplicado entre tipos " +
+                        leftType + " e " + rightType);
             }
             return;
         }
@@ -694,25 +668,16 @@ public class SemanticAnalyzer {
         if (op.equals("-") || op.equals("*") || op.equals("/") || op.equals("%")) {
             // Apenas números
             if (!isNumeric(leftType) || !isNumeric(rightType)) {
-                errors.add("Erro: Operador '" + op + "' não pode ser aplicado entre tipos " + 
-                          leftType + " e " + rightType);
+                errors.add("Erro: Operador '" + op + "' não pode ser aplicado entre tipos " +
+                        leftType + " e " + rightType);
             }
         }
     }
 
-    /**
-     * Verifica se um tipo é numérico.
-     * @param type Tipo a verificar.
-     * @return true se o tipo for numérico (INTEGER ou DECIMAL).
-     */
     private boolean isNumeric(String type) {
         return type.equals("INTEGER") || type.equals("DECIMAL");
     }
 
-    /**
-     * Formata os erros semânticos para exibição.
-     * @return String formatada com todos os erros.
-     */
     public String formatErrors() {
         if (errors.isEmpty()) {
             return "Nenhum erro semântico encontrado.";
@@ -722,11 +687,11 @@ public class SemanticAnalyzer {
         sb.append("\n\u001B[31m╔═══════════════════════════════════════════\u001B[0m\n");
         sb.append("\u001B[31m║ \u001B[1;31mERROS SEMÂNTICOS\u001B[0m \u001B[31m                       ║\u001B[0m\n");
         sb.append("\u001B[31m╠═══════════════════════════════════════════\u001B[0m\n");
-        
+
         for (int i = 0; i < errors.size(); i++) {
             sb.append("\u001B[31m║ \u001B[0m").append(i + 1).append(". ").append(errors.get(i)).append("\n");
         }
-        
+
         sb.append("\u001B[31m╚═══════════════════════════════════════════\u001B[0m\n");
         return sb.toString();
     }

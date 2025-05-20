@@ -55,6 +55,6 @@ public class IfNode extends ASTNode {
 
     @Override
     public String toString() {
-        return toFormattedString("", true); // Usar a versão formatada para consistência
+        return toFormattedString("", true);
     }
 }

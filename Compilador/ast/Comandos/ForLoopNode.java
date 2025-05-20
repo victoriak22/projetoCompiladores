@@ -20,12 +20,10 @@ public class ForLoopNode extends ASTNode {
     public String toFormattedString(String indent, boolean isLast) {
         StringBuilder sb = new StringBuilder();
 
-        // ForLoop header
         sb.append(indent).append(isLast ? "└── " : "├── ").append("ForLoop\n");
 
         String childIndent = indent + (isLast ? "    " : "│   ");
 
-        // Append each part of the loop
         appendLoopPart(sb, childIndent, "Initialization:", inicializacao, false);
         appendLoopPart(sb, childIndent, "Condition:", condicao, false);
         appendLoopPart(sb, childIndent, "Increment:", incremento, false);
@@ -36,7 +34,7 @@ public class ForLoopNode extends ASTNode {
 
     @Override
     public String toString() {
-        return toFormattedString("", true); // Consistent with other nodes
+        return toFormattedString("", true);
     }
 
     private void appendLoopPart(StringBuilder sb, String indent, String label, ASTNode part, boolean isLast) {

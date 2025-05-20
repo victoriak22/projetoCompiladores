@@ -20,11 +20,11 @@ public class AssignNode extends ASTNode {
         String childIndent = indent + (isLast ? "    " : "│   ");
         
         // Subnó LHS (left-hand side)
-        sb.append(childIndent).append("├── LHS:\n");
+        sb.append(childIndent).append("├── LEFT:\n");
         sb.append(lhs.toFormattedString(childIndent + "│   ", false));
         
         // Subnó RHS (right-hand side)
-        sb.append(childIndent).append("└── RHS:\n");
+        sb.append(childIndent).append("└── RIGHT:\n");
         sb.append(rhs.toFormattedString(childIndent + "    ", true));
         
         return sb.toString();

@@ -18,12 +18,9 @@ public class CommentNode extends ASTNode {
         // Prefixo visual se não for raiz
         sb.append(indent).append(isLast ? "└── " : "├── ");
         
-        // Ícone e conteúdo do comentário
-        sb.append("💬 ");
-        
         // Conteúdo truncado se necessário
         if (texto.length() > MAX_DISPLAY_LENGTH) {
-            sb.append(texto, 0, MAX_DISPLAY_LENGTH - 3).append("...");  // Truncamento com "..."
+            sb.append(texto, 0, MAX_DISPLAY_LENGTH - 3).append("..."); 
         } else {
             sb.append(texto);
         }
@@ -33,10 +30,9 @@ public class CommentNode extends ASTNode {
 
     @Override
     public String toString() {
-        return toFormattedString("", true);  // Chamada para a versão formatada
+        return toFormattedString("", true); 
     }
 
-    // Método adicional para obter o texto completo
     public String getFullText() {
         return texto;
     }

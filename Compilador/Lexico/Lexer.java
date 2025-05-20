@@ -149,7 +149,7 @@ public class Lexer {
             if (t != null) {
                 return t;
             }
-            code.setIndex(pos); // Reset para próxima tentativa
+            code.setIndex(pos);
         }
         return null;
     }

@@ -4,7 +4,7 @@ import Compilador.ast.ASTNode;
 
 public class PrintNode extends ASTNode {
     public final ASTNode conteudo;
-    private static final String CONNECTOR = "│   ";  // Definindo a constante CONNECTOR
+    private static final String CONNECTOR = "│   ";
 
     public PrintNode(ASTNode conteudo) {
         this.conteudo = conteudo;
@@ -20,7 +20,7 @@ public class PrintNode extends ASTNode {
         // Verifica se o conteúdo não é nulo e formata adequadamente
         if (conteudo != null) {
             sb.append(indent).append(CONNECTOR).append("Content:\n")
-              .append(conteudo.toFormattedString(indent + CONNECTOR, true));  // Indenta corretamente o conteúdo
+              .append(conteudo.toFormattedString(indent + CONNECTOR, true));
         }
         
         return sb.toString();
@@ -28,6 +28,6 @@ public class PrintNode extends ASTNode {
 
     @Override
     public String toString() {
-        return toFormattedString("", true);  // Consistente com outros nós, começa do nível 0
+        return toFormattedString("", true);
     }
 }

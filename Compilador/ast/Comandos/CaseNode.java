@@ -33,6 +33,6 @@ public class CaseNode extends ASTNode {
 
     @Override
     public String toString() {
-        return toFormattedString("", true);  // Consistência com outras classes
+        return toFormattedString("", true);
     }
 }

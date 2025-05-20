@@ -16,10 +16,9 @@ public class Str extends ASTNode {
 
     @Override
     public String toString() {
-        return toFormattedString("", true); // Usa a versão formatada com indentação inicial vazia
+        return toFormattedString("", true);
     }
 
-    // Método acessador
     public String getValor() {
         return valor;
     }
