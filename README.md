@@ -311,8 +311,8 @@ deus :multiplicar -> :A, :B {
 }
 
 :resultadoMultiplicacao -> :multiplicar(3, 4)
-="'Resultado da multiplicação: '"
-=":resultadoMultiplicacao"
+p("Resultado da multiplicação: ")
+p(:resultadoMultiplicacao)
 ```
 
 ### Exemplo 2: Loop com Condicional
@@ -326,11 +326,11 @@ deus :listarNumeros -> :limite {
   loop(:i -> 0; :i < :limite; :i -> :i + 1) {
     -- Verifica se o número é par ou ímpar
     se(:i % 2 == 0){
-      ="'Número par: '"
-      =":i"
+      p("Número par: ")
+      p(:i)
     senao{
-      ="'Número ímpar: '"
-      =":i"
+      p("Número ímpar: ")
+      p(:i)
     }
   }
 }
@@ -375,14 +375,56 @@ deus :calculadora -> :operacao, :a, :b{
 :resMultiplicacao -> :calculadora("multiplicacao", 10, 5)
 :resDivisao -> :calculadora("divisao", 10, 5)
 
-="'Soma: '"
-=":resSoma"
-="'Subtração: '"
-=":resSubtracao"
-="'Multiplicação: '"
-=":resMultiplicacao"
-="'Divisão: '"
-=":resDivisao"
+p("Soma: ")
+p(:resSoma)
+p("Subtração: ")
+p(:resSubtracao)
+p("Multiplicação: ")
+p(:resMultiplicacao)
+p("Divisão: ")
+p(:resDivisao)
+```
+### Exemplo 4: Loop que imprime até o número 10
+
+```psalms
+deus :ateDez {
+  :i -> 1
+
+  loop(:i -> 1; :i <= 10; :i -> :i + 1){
+    p("Número atual: ")
+    p(:i)
+  }
+
+  amen nulo
+}
+
+-- Chamada da função
+:resultado -> :ateDez()
+```
+### Exemplo 5: Função que retorna o maior e o menor entre dois números
+
+```psalms
+deus :maiorMenor -> :a, :b {
+  -- Verifica qual é o maior
+  se(:a > :b){
+    :maior -> :a
+    :menor -> :b
+  }
+  senao{
+    :maior -> :b
+    :menor -> :a
+  }
+
+  p("Maior número: ")
+  p(:maior)
+  p("Menor número: ")
+  p(:menor)
+
+  amen nulo
+}
+
+-- Chamada da função
+:resultado -> :maiorMenor(8, 3)
 ```
 
 Para mais exemplos, consulte o arquivo `exemplos_psalms.psalms` incluído no projeto.
