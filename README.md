@@ -478,6 +478,38 @@ deus :maiorMenor -> :a, :b {
 -- Chamada da função
 :resultado -> :maiorMenor(8, 3)
 ```
+## ❌ Exemplos de Erros
+
+### Erro Léxico – Identificador sem dois-pontos
+
+```psalms
+deus multiplicar -> :a, :b {
+  :resultado -> :a * :b
+  amen :resultado
+}
+
+🧠 Erro: O nome multiplicar não está precedido por :. Todos os identificadores na linguagem PSALMS devem começar com : para serem reconhecidos como válidos.
+```
+### Erro Sintático – Condicional sem parênteses
+
+```psalms
+se :x > 0 {
+  p("Positivo")
+}
+
+🧠 Erro: A estrutura se requer que a expressão condicional esteja entre parênteses.
+```
+### Erro Semântico – Divisão por zero
+
+```psalms
+deus :dividir -> :a, :b {
+  amen :a / :b
+}
+
+:resultado -> :dividir(10, 0)
+
+🧠 Erro: Mesmo que o código seja léxica e sintaticamente válido, há um erro semântico: a divisão por zero.
+```
 
 Para mais exemplos, consulte o arquivo `exemplos-psalms.psalms` incluído no projeto.
 
