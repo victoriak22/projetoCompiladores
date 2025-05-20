@@ -5,6 +5,10 @@
 - [📖 Introdução](#-introdução)
 - [✝️ Palavras Reservadas](#️-palavras-reservadas-java--psalms)
 - [🛠 Como Funciona o Compilador](#-como-funciona-o-compilador-psalms)
+  - [Análise Léxica](#análise-léxica)
+  - [Análise Sintática](#análise-sintática)
+  - [Análise Semântica](#análise-semântica)
+  - [Tradução](#tradução)
 - [📝 Sintaxe Básica](#-sintaxe-básica-da-linguagem-psalms)
   - [Comentários](#comentários)
   - [Variáveis](#variáveis)
@@ -23,19 +27,23 @@
   - [Exemplo 2: Loop com Condicional](#exemplo-2-loop-com-condicional)
   - [Exemplo 3: Calculadora Simples](#exemplo-3-calculadora-simples)
   - [Exemplo 4: Programa com Entrada do Usuário](#exemplo-4-programa-com-entrada-do-usuário)
-- [🚀 Como Usar o Compilador](#-como-usar-o-compilador)
+  - [Exemplo 5: Loop até 10](#exemplo-5-loop-que-imprime-até-o-número-10)
+  - [Exemplo 6: Função para Maior e Menor](#exemplo-6-função-que-retorna-o-maior-e-o-menor-entre-dois-números)
+- [❌ Exemplos de Erros](#-exemplos-de-erros)
+  - [Erro Léxico](#erro-léxico--identificador-sem-dois-pontos)
+  - [Erro Sintático](#erro-sintático--condicional-sem-parênteses)
+  - [Erro Semântico](#erro-semântico--divisão-por-zero)
 - [📚 Operadores Suportados](#-operadores-suportados)
   - [Aritméticos](#aritméticos)
   - [Relacionais](#relacionais)
   - [Lógicos](#lógicos)
-
 ---
 
 ## 📖 Introdução
 
-O **Compilador PSALMS** é um projeto educacional que realiza a **análise léxica, sintática e semântica** de uma linguagem de programação simbólica inspirada em conceitos cristãos e com palavras em português. Ele transforma o código PSALMS em uma representação intermediária que poderia ser interpretada ou traduzida para outra linguagem de mais baixo nível como Pascal. Essa abordagem permite estudar conceitos fundamentais de compiladores de forma acessível para falantes de português. 🌍💻
+O **Compilador PSALMS** é um projeto educacional que realiza a **análise léxica, sintática e semântica** de uma linguagem de programação simbólica inspirada em conceitos cristãos e com palavras em português. Ele transforma o código PSALMS em uma representação intermediária que é traduzida para Pascal, permitindo a execução real do código. Essa abordagem permite estudar conceitos fundamentais de compiladores de forma acessível para falantes de português. 🌍💻
 
-A linguagem **PSALMS** foi projetada com uma forte influência de palavras que fazem referência ao cristianismo, tornando o código não apenas mais intuitivo, mas também com um toque simbólico e espiritual. 🙏
+A linguagem **PSALMS** foi projetada com uma forte influência de palavras que fazem referência ao cristianismo, tornando o código não apenas mais intuitivo para falantes de português, mas também com um toque simbólico e espiritual. 🙏
 
 ---
 
@@ -81,10 +89,30 @@ A linguagem **PSALMS** foi projetada com uma forte influência de palavras que f
 
 O compilador PSALMS realiza um processo em quatro fases:
 
-1. **Análise Léxica**: Tokenização de palavras reservadas, identificadores, operadores e literais.
-2. **Análise Sintática**: Verificação da estrutura gramatical e construção da AST (Árvore Sintática Abstrata).
-3. **Análise Semântica**: Verificação lógica e de tipos (uso correto de variáveis, funções, etc.).
-4. **Tradução**: Conversão do código PSALMS para código Pascal equivalente.
+### Análise Léxica
+- Tokenização de palavras reservadas, identificadores, operadores e literais
+- Implementada na classe `Lexer.java` utilizando Autômatos Finitos Determinísticos (AFDs)
+- Cada token é classificado por tipo (ID, NUMBER, OPERATOR, etc.)
+- Localiza e reporta erros léxicos com mensagens descritivas
+
+### Análise Sintática
+- Verifica a estrutura gramatical do programa
+- Implementada em `Parser.java` usando análise descendente recursiva
+- Constrói a AST (Árvore Sintática Abstrata) se o programa for válido
+- Fornece mensagens de erro detalhadas para problemas sintáticos
+
+### Análise Semântica
+- Verifica a lógica e tipos (uso correto de variáveis, funções, etc.)
+- Usa a tabela de símbolos para rastrear identificadores e seus tipos
+- Verifica se variáveis são declaradas antes do uso
+- Valida compatibilidade de tipos em operações e atribuições
+- Detecção de erros como variáveis não declaradas e incompatibilidade de tipos
+
+### Tradução
+- Converte a AST em código Pascal equivalente
+- Implementa a inferência de tipos para variáveis
+- Otimiza estruturas de controle para código Pascal mais limpo
+- Gera um programa Pascal completo e pronto para execução
 
 ---
 
@@ -129,7 +157,6 @@ Para imprimir valores, use a sintaxe `p()`:
 
 ```psalms
 p("Texto a ser exibido")
-p("Resultado: ")
 p(:variavel)
 ```
 
@@ -152,7 +179,7 @@ $ler(:idade)
 ### Condicionais
 
 ```psalms
-se(:idade >= 18){
+se(:idade >= 18) {
   p("Maior de idade")
 } senao {
   p("Menor de idade")
@@ -162,9 +189,9 @@ se(:idade >= 18){
 Com múltiplas condições:
 
 ```psalms
-se(:nota >= 7){
+se(:nota >= 7) {
   p("Aprovado")
-} senaose(:nota >= 5){
+} senaose(:nota >= 5) {
   p("Recuperação")
 } senao {
   p("Reprovado")
@@ -197,15 +224,15 @@ enquanto(:contador < 5) {
 
 ```psalms
 escolha(:opcao) {
-  caso 1{
+  caso 1 {
     p("Opção 1 selecionada")
     parar
   }
-  caso 2{
+  caso 2 {
     p("Opção 2 selecionada")
     parar
   }
-  padrao{
+  padrao {
     p("Opção inválida")
   }
 }
@@ -337,7 +364,7 @@ deus :listarNumeros -> :limite {
   -- Loop que vai de 0 até o limite
   loop(:i -> 0; :i < :limite; :i -> :i + 1) {
     -- Verifica se o número é par ou ímpar
-    se(:i % 2 == 0){
+    se(:i % 2 == 0) {
       p("Número par: ")
       p(:i)
     } senao {
@@ -398,67 +425,58 @@ p(:resDivisao)
 ### Exemplo 4: Programa com Entrada do Usuário
 
 ```psalms
--- Programa simples com entrada, loop e condicionais em PSALMS
+-- Programa simples com entrada do usuário
 
-:nome -> ""
-:idade -> 0
+:n1 -> 0
+:n2 -> 0
 
--- Solicitação de dados ao usuário
-p("Digite seu nome:")
-$ler(:nome)
+p("Digite o primeiro numero")
+$ler(:n1)
 
-p("Digite sua idade:")
-$ler(:idade)
+p("Digite o segundo numero")
+$ler(:n2)
 
--- Saudação e exibição das informações
-p("Olá!")
-p("Seu nome é:")
-p(:nome)
-p("Sua idade é:")
-p(:idade)
-p("Anos")
+p("Voce digitou os numeros:")
+p(:n1)
+p(:n2)
 
--- Verifica a idade com condicional
-se(:idade >= 18) {
-    p("Você é maior de idade.")
+se(:n1 > :n2) {
+    p("O primeiro numero e maior que o segundo")
+} senaose(:n1 < :n2) {
+    p("O segundo numero e maior que o primeiro")
 } senao {
-    p("Você é menor de idade.")
+    p("Os dois numeros sao iguais")
 }
 
--- Loop para contar até 5
-p("Contagem até 5:")
-:contador -> 1
-enquanto(:contador <= 5) {
-    p(:contador)
-    :contador -> :contador + 1
-}
-
-p("Fim do programa!")
+p("Fim do programa")
 ```
 
 ### Exemplo 5: Loop que imprime até o número 10
 
 ```psalms
-deus :ateDez {
-  :i -> 1
+:i -> 1
 
-  loop(:i -> 1; :i <= 10; :i -> :i + 1) {
-    p("Número atual: ")
-    p(:i)
-  }
-
-  amen nulo
+loop(:i -> 1; :i <= 10; :i -> :i + 1) {
+  p("Numero atual: ")
+  p(:i)
 }
-
--- Chamada da função
-:resultado -> :ateDez()
 ```
 
 ### Exemplo 6: Função que retorna o maior e o menor entre dois números
 
 ```psalms
-deus :maiorMenor -> :a, :b {
-  -- Verifica qual é o maior
+-- Declaração dos valores
+:a -> 8
+:b -> 3
+:maior -> 0
+:menor -> 0
+
+-- Verifica se os números são iguais
+se(:a == :b) {
+  p("Os numeros sao iguais: ")
+  p(:a)
+} senao {
+  -- Se não forem iguais, verifica qual eh o maior
   se(:a > :b) {
     :maior -> :a
     :menor -> :b
@@ -466,18 +484,14 @@ deus :maiorMenor -> :a, :b {
     :maior -> :b
     :menor -> :a
   }
-
-  p("Maior número: ")
+  
+  p("Maior numero: ")
   p(:maior)
-  p("Menor número: ")
+  p("Menor numero: ")
   p(:menor)
-
-  amen nulo
 }
-
--- Chamada da função
-:resultado -> :maiorMenor(8, 3)
 ```
+
 ## ❌ Exemplos de Erros
 
 ### Erro Léxico – Identificador sem dois-pontos
@@ -487,57 +501,26 @@ deus multiplicar -> :a, :b {
   :resultado -> :a * :b
   amen :resultado
 }
-
-🧠 Erro: O nome multiplicar não está precedido por :. Todos os identificadores na linguagem PSALMS devem começar com : para serem reconhecidos como válidos.
 ```
+**Erro:** O nome multiplicar não está precedido por :. Todos os identificadores na linguagem PSALMS devem começar com : para serem reconhecidos como válidos.
+
 ### Erro Sintático – Condicional sem parênteses
 
 ```psalms
 se :x > 0 {
   p("Positivo")
 }
-
-🧠 Erro: A estrutura se requer que a expressão condicional esteja entre parênteses.
 ```
-### Erro Semântico – Divisão por zero
+**Erro:** A estrutura se requer que a expressão condicional esteja entre parênteses.
+
+### Erro Semântico – Variável não declarada
 
 ```psalms
-deus :dividir -> :a, :b {
-  amen :a / :b
-}
-
-:resultado -> :dividir(10, 0)
-
-🧠 Erro: Mesmo que o código seja léxica e sintaticamente válido, há um erro semântico: a divisão por zero.
+:x -> 10
+:y -> :x + :z
+p(:y)
 ```
-
-Para mais exemplos, consulte o arquivo `exemplos-psalms.psalms` incluído no projeto.
-
----
-
-## 🚀 Como Usar o Compilador
-
-1. Clone este repositório:
-
-   ```
-   git clone https://github.com/seu-usuario/compilador-psalms.git
-   ```
-
-2. Compile o projeto:
-
-   ```
-   javac Compilador/Main.java
-   ```
-
-3. Crie um arquivo `input.psalms` com seu código PSALMS.
-
-4. Execute o compilador:
-
-   ```
-   java Compilador.Main
-   ```
-
-5. O compilador gerará um arquivo `output.pas` com o código Pascal equivalente.
+**Erro:** A variável :z é utilizada mas não foi declarada anteriormente. O analisador semântico detecta este tipo de erro.
 
 ---
 
