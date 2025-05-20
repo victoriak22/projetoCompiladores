@@ -1,5 +1,16 @@
-deus :maiorMenor -> :a, :b {
-  -- Verifica qual é o maior
+-- Declaração dos valores
+:a -> 8
+:b -> 3
+:maior -> 0
+:menor -> 0
+
+-- Verifica se os números são iguais
+se(:a == :b) {
+  p("Os numeros sao iguais: ")
+  p(:a)
+} senao {
+  -- Se não forem iguais, verifica qual eh o maior
+
   se(:a > :b) {
     :maior -> :a
     :menor -> :b
@@ -7,14 +18,9 @@ deus :maiorMenor -> :a, :b {
     :maior -> :b
     :menor -> :a
   }
-
-  p("Maior número: ")
+  
+  p("Maior numeros: ")
   p(:maior)
-  p("Menor número: ")
+  p("Menor numeros: ")
   p(:menor)
-
-  amen nulo
 }
-
--- Chamada da função
-:resultado -> :maiorMenor(8, 3)

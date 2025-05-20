@@ -88,8 +88,6 @@ public class PascalTranslator {
                 code.append(" '").append(funcName).append("' foi definido mas não utilizado *)\n");
             }
         }
-
-        code.append("  ReadLn; (* Pausa antes de encerrar *)\n");
         code.append("END.\n");
 
         return code.toString();

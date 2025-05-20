@@ -1,17 +1,15 @@
 PROGRAM PsalmsProgram;
 
 VAR
-  A: Integer;
-  B: Integer;
+  a: Integer;
+  b: Integer;
   resultado: Integer;
 
-PROCEDURE multiplicar(A: Integer; B: Integer);
 BEGIN
-  resultado := (A * B);
+  a := 10;
+  b := 0;
+  resultado := (a * b);
+  WriteLn('O resultado da divisao e');
   WriteLn(resultado);
-END;
-
-BEGIN
-  (* ATENÇÃO: Procedimento 'multiplicar' foi definido mas não utilizado *)
-  ReadLn; (* Pausa antes de encerrar *)
+  WriteLn('Fim do programa');
 END.

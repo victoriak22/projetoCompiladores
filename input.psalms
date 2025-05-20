@@ -1,6 +1,3 @@
-deus :multiplicar -> :A, :B {
-  :resultado -> :A * :B
-  p(:resultado)
+se :x > 0 {
+  p("Positivo")
 }
-
-:multiplicar(3, 4)

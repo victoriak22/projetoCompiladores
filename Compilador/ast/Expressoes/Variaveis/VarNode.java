@@ -16,7 +16,7 @@ public class VarNode extends ASTNode {
 
     @Override
     public String toString() {
-        return toFormattedString("", true); // Usa versão formatada para consistência
+        return toFormattedString("", true);
     }
 
     // Método de acesso

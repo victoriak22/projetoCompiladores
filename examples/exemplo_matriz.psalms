@@ -1,0 +1,16 @@
+:linha -> 1
+
+loop(:linha -> 1; :linha <= 3; :linha -> :linha + 1) {
+  :coluna -> 1
+
+  loop(:coluna -> 1; :coluna <= 3; :coluna -> :coluna + 1) {
+    p("Linha")
+    p(:linha)
+    p("Coluna")
+    p(:coluna)
+  }
+}
+
+-- 1 2 3 
+-- 1 2 3 
+-- 1 2 3 

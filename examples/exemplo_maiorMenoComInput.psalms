@@ -1,0 +1,22 @@
+:n1 -> 0
+:n2 -> 0
+
+p("Digite o primeiro numero")
+$ler(:n1)
+
+p("Digite o segundo numero")
+$ler(:n2)
+
+p("Voce digitou os numeros:")
+p(:n1)
+p(:n2)
+
+se(:n1 > :n2) {
+    p("O primeiro numero e maior que o segundo")
+} senao se(:n1 < :n2) {
+    p("O segundo numero e maior que o primeiro")
+} senao {
+    p("Os dois numeros sao iguais")
+}
+
+p("Fim do programa")

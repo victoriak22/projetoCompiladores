@@ -9,50 +9,59 @@ public class PrintToken extends AFD {
         if (code.current() == 'p') {
             int startPos = code.getIndex();
             code.next(); // Consome 'p'
-            
-            // Verifica se o caractere seguinte é um parêntese de abertura
+
             if (code.current() == '(') {
                 code.next(); // Consome '('
                 StringBuilder content = new StringBuilder("p(");
-                
-                // Verifica se é uma string com aspas
-                if (code.current() == '"') {
-                    content.append('"');
-                    code.next(); // Consome '"'
-                    
-                    // Coleta o conteúdo até a próxima aspas
-                    while (code.current() != '"' && code.current() != CharacterIterator.DONE) {
-                        content.append(code.current());
+
+                boolean expectMore = true;
+
+                while (expectMore && code.current() != CharacterIterator.DONE) {
+                    // Ignora espaços
+                    while (Character.isWhitespace(code.current())) {
                         code.next();
                     }
-                    
+
+                    // Verifica se é uma string entre aspas
                     if (code.current() == '"') {
                         content.append('"');
-                        code.next(); // Consome a aspas final
-                        
-                        // Verifica se há fechamento do parêntese
-                        if (code.current() == ')') {
-                            content.append(')');
-                            code.next(); // Consome ')'
-                            return new Token("PRINT", content.toString());
+                        code.next();
+                        while (code.current() != '"' && code.current() != CharacterIterator.DONE) {
+                            content.append(code.current());
+                            code.next();
+                        }
+                        if (code.current() == '"') {
+                            content.append('"');
+                            code.next();
                         }
                     }
-                } else {
-                    // Caso seja uma expressão ou variável sem aspas
-                    while (code.current() != ')' && code.current() != CharacterIterator.DONE) {
-                        content.append(code.current());
-                        code.next();
+                    // Verifica se é uma variável ou símbolo
+                    else if (Character.isLetterOrDigit(code.current()) || code.current() == ':' || code.current() == '+'
+                            || code.current() == '-') {
+                        while (code.current() != ',' && code.current() != ')'
+                                && code.current() != CharacterIterator.DONE) {
+                            content.append(code.current());
+                            code.next();
+                        }
                     }
-                    
-                    if (code.current() == ')') {
+
+                    // Verifica próximo caractere
+                    if (code.current() == ',') {
+                        content.append(", ");
+                        code.next(); // Consome vírgula e continua
+                    } else if (code.current() == ')') {
                         content.append(')');
                         code.next(); // Consome ')'
-                        return new Token("PRINT", content.toString());
+                        expectMore = false;
+                    } else {
+                        break; // Caso de erro ou fim inesperado
                     }
                 }
+
+                return new Token("PRINT", content.toString());
             }
-            
-            // Se não seguir o padrão esperado, volta ao início
+
+            // Falha, volta ao início
             code.setIndex(startPos);
         }
         return null;

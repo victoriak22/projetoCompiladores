@@ -1,8 +1,0 @@
-deus :multiplicar -> :A, :B {
-  :resultado -> :A * :B
-  amen :resultado
-}
-
-:resultadoMultiplicacao -> :multiplicar(3, 4)
-p("Resultado da multiplicação: ")
-p(:resultadoMultiplicacao)
