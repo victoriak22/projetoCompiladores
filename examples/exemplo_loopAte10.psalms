@@ -1,0 +1,13 @@
+deus :ateDez {
+  :i -> 1
+
+  loop(:i -> 1; :i <= 10; :i -> :i + 1) {
+    p("Número atual: ")
+    p(:i)
+  }
+
+  amen nulo
+}
+
+-- Chamada da função
+:resultado -> :ateDez()
