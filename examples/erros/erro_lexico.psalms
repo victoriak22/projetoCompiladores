@@ -1,0 +1,4 @@
+deus multiplicar -> :a, :b {
+  :resultado -> :a * :b
+  amen :resultado
+}
