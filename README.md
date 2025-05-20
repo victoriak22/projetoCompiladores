@@ -125,9 +125,9 @@ deus :soma -> :a, :b {
 Para imprimir valores, use a sintaxe `=`:
 
 ```psalms
-="'Texto a ser exibido'"
-="'Resultado: '"
-=":variavel"
+p("Texto a ser exibido")
+p("Resultado: ")
+p(:variavel)
 ```
 
 ---
@@ -138,9 +138,9 @@ Para imprimir valores, use a sintaxe `=`:
 
 ```psalms
 se(:idade >= 18){
-  ="'Maior de idade'"
+  p("Maior de idade")
 senao{
-  ="'Menor de idade'"
+  p("Menor de idade")
   }
 }
 ```
@@ -149,13 +149,13 @@ Com múltiplas condições:
 
 ```psalms
 se(:nota >= 7){
-  ="'Aprovado'"
+  p("Aprovado")
 
 senaose(:nota >= 5){
-  ="'Recuperação'"
+  p("Recuperação")
 }
 senao{
-  ="'Reprovado'"
+  p("Reprovado")
 }
 }
 ```
@@ -166,8 +166,8 @@ Loop for:
 
 ```psalms
 loop(:i -> 0; :i < 5; :i -> :i + 1) {
-  ="'Valor de i: '"
-  =":i"
+  p("Valor de i: ")
+  p(:i)
 }
 ```
 
@@ -176,8 +176,8 @@ Loop while:
 ```psalms
 :contador -> 0
 enquanto(:contador < 5) {
-  ="'Contador: '"
-  =":contador"
+  p("Contador: ")
+  p(:contador)
   :contador -> :contador + 1
 }
 ```
@@ -187,15 +187,15 @@ enquanto(:contador < 5) {
 ```psalms
 escolha(:opcao) {
   caso 1{
-    ="'Opção 1 selecionada'"
+    p("Opção 1 selecionada")
     parar
   }
   caso 2{
-    ="'Opção 2 selecionada'"
+    p("Opção 2 selecionada")
     parar
   }
   padrao{
-    ="'Opção inválida'"
+    p("Opção inválida")
   }
 }
 ```
@@ -207,12 +207,12 @@ escolha(:opcao) {
 ```psalms
 tente {
   :resultado -> :dividir(10, 0)
-  ="'Resultado: '"
-  =":resultado"
+  p("Resultado: ")
+  p(:resultado)
 }
 capturar(:erro){
-  ="'Ocorreu um erro: '"
-  =":erro"
+  p("Ocorreu um erro: ")
+  p(:erro)
   }
 ```
 
@@ -227,7 +227,6 @@ ListaComandos → Comando ListaComandos | ε
 
 Comando → Declaracao
         | Atribuicao
-        | EstruturaCondicionalSimples
         | EstruturaCondicionalBloco
         | EstruturaLoop
         | EstruturaEscolha
@@ -250,7 +249,7 @@ ComandoRetorno → amen Expressao
 
 ComandoParar → parar
 
-Impressao → = Expressao
+Impressao → p ( Expressao )
 
 Expressao → Valor
           | Expressao OperadorAritmetico Expressao
@@ -274,14 +273,14 @@ ChamadaFuncao → :identificador ( ArgumentosFuncao )
 ArgumentosFuncao → ListaArgumentos | ε
 ListaArgumentos → Expressao | Expressao , ListaArgumentos
 
-EstruturaCondicionalSimples → se ( Expressao ) : Comando
-EstruturaCondicionalBloco → se ( Expressao ) : { ListaComandos }
+EstruturaCondicionalBloco → se ( Expressao ) { ListaComandos } ListaSenaoSe ListaSenao
 
-SenaoSe → senaose ( Expressao ) : Comando
-        | senaose ( Expressao ) : { ListaComandos }
+ListaSenaoSe → SenaoSe ListaSenaoSe | ε
 
-Senao → senao : Comando
-      | senao : { ListaComandos }
+SenaoSe → senaose ( Expressao ) { ListaComandos }
+
+ListaSenao → Senao | ε
+Senao → senao { ListaComandos }
 
 EstruturaLoop → loop ( Atribuicao ; Expressao ; Atribuicao ) { ListaComandos }
               | enquanto ( Expressao ) { ListaComandos }
@@ -291,10 +290,11 @@ EstruturaEscolha → escolha ( Expressao ) {
                      CasoPadrao
                    }
 
-ListaCasos → caso Valor : ListaComandos ListaCasos | ε
-CasoPadrao → padrao : ListaComandos | ε
+ListaCasos → caso Valor { ListaComandos } ListaCasos | ε
 
-TratamentoErros → tente { ListaComandos } capturar ( :identificador ) : ListaComandos
+CasoPadrao → padrao { ListaComandos } | ε
+
+TratamentoErros → tente { ListaComandos } capturar ( :identificador ) { ListaComandos }
 ```
 
 ---
@@ -310,8 +310,8 @@ deus :multiplicar -> :A, :B {
 }
 
 :resultadoMultiplicacao -> :multiplicar(3, 4)
-="'Resultado da multiplicação: '"
-=":resultadoMultiplicacao"
+p("Resultado da multiplicação: ")
+p(:resultadoMultiplicacao)
 ```
 
 ### Exemplo 2: Loop com Condicional
@@ -325,11 +325,11 @@ deus :listarNumeros -> :limite {
   loop(:i -> 0; :i < :limite; :i -> :i + 1) {
     -- Verifica se o número é par ou ímpar
     se(:i % 2 == 0){
-      ="'Número par: '"
-      =":i"
+      p("Número par: ")
+      p(:i)
     senao{
-      ="'Número ímpar: '"
-      =":i"
+      p("Número ímpar: ")
+      p(:i)
     }
   }
 }
@@ -374,14 +374,56 @@ deus :calculadora -> :operacao, :a, :b{
 :resMultiplicacao -> :calculadora("multiplicacao", 10, 5)
 :resDivisao -> :calculadora("divisao", 10, 5)
 
-="'Soma: '"
-=":resSoma"
-="'Subtração: '"
-=":resSubtracao"
-="'Multiplicação: '"
-=":resMultiplicacao"
-="'Divisão: '"
-=":resDivisao"
+p("Soma: ")
+p(:resSoma)
+p("Subtração: ")
+p(:resSubtracao)
+p("Multiplicação: ")
+p(:resMultiplicacao)
+p("Divisão: ")
+p(:resDivisao)
+```
+### Exemplo 4: Loop que imprime até o número 10
+
+```psalms
+deus :ateDez {
+  :i -> 1
+
+  loop(:i -> 1; :i <= 10; :i -> :i + 1){
+    p("Número atual: ")
+    p(:i)
+  }
+
+  amen nulo
+}
+
+-- Chamada da função
+:resultado -> :ateDez()
+```
+### Exemplo 5: Função que retorna o maior e o menor entre dois números
+
+```psalms
+deus :maiorMenor -> :a, :b {
+  -- Verifica qual é o maior
+  se(:a > :b){
+    :maior -> :a
+    :menor -> :b
+  }
+  senao{
+    :maior -> :b
+    :menor -> :a
+  }
+
+  p("Maior número: ")
+  p(:maior)
+  p("Menor número: ")
+  p(:menor)
+
+  amen nulo
+}
+
+-- Chamada da função
+:resultado -> :maiorMenor(8, 3)
 ```
 
 Para mais exemplos, consulte o arquivo `exemplos_psalms.psalms` incluído no projeto.
