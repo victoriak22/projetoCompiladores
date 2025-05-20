@@ -1,22 +1,17 @@
 PROGRAM PsalmsProgram;
 
-USES
-  SysUtils; // Para conversões String <-> número
-
 VAR
-  resultadoMultiplicacao: String;
-  teste: Integer;
-  resultado: Double;
+  A: Integer;
+  B: Integer;
+  resultado: Integer;
 
-FUNCTION multiplicar(A: Variant; B: Variant): Variant;
+PROCEDURE multiplicar(A: Integer; B: Integer);
 BEGIN
   resultado := (A * B);
-  teste := 12;
-  multiplicar := resultado;
+  WriteLn(resultado);
 END;
 
 BEGIN
-  resultadoMultiplicacao := multiplicar;
-  WriteLn('Resultado da multiplicação:');
-  WriteLn(VarToStr(resultadoMultiplicacao));
+  (* ATENÇÃO: Procedimento 'multiplicar' foi definido mas não utilizado *)
+  ReadLn; (* Pausa antes de encerrar *)
 END.
