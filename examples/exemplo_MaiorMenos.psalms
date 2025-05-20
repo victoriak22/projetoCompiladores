@@ -1,0 +1,20 @@
+deus :maiorMenor -> :a, :b {
+  -- Verifica qual é o maior
+  se(:a > :b) {
+    :maior -> :a
+    :menor -> :b
+  } senao {
+    :maior -> :b
+    :menor -> :a
+  }
+
+  p("Maior número: ")
+  p(:maior)
+  p("Menor número: ")
+  p(:menor)
+
+  amen nulo
+}
+
+-- Chamada da função
+:resultado -> :maiorMenor(8, 3)
