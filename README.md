@@ -167,7 +167,7 @@ Loop for:
 ```psalms
 loop(:i -> 0; :i < 5; :i -> :i + 1) {
   p("Valor de i: ")
-  p(":i")
+  p(:i)
 }
 ```
 
@@ -177,7 +177,7 @@ Loop while:
 :contador -> 0
 enquanto(:contador < 5) {
   p("Contador: ")
-  p(":contador")
+  p(:contador)
   :contador -> :contador + 1
 }
 ```
@@ -208,11 +208,11 @@ escolha(:opcao) {
 tente {
   :resultado -> :dividir(10, 0)
   p("Resultado: ")
-  p(":resultado")
+  p(:resultado)
 }
 capturar(:erro){
   p("Ocorreu um erro: ")
-  p(":erro")
+  p(:erro)
   }
 ```
 
